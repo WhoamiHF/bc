@@ -26,7 +26,7 @@ directions game::get_directions(int difference_x, int difference_y) {
 }
 
 //this is called only if it's outside move board  or move board on this tile is empty.
-bool game::check_path(int from_x, int from_y, int to_x, int to_y, std::unique_ptr<figure> board[6][6], bool first_player_playing) {
+bool game::check_path(int from_x, int from_y, int to_x, int to_y) {
 	//std::cout << "called" << from_x <<" "<<from_y <<" "<<to_x<<" " <<to_y<<std::endl;
 	//std::cout << difference_x << " " << difference_y << std::endl;
 	//std::cout << direction.x << " " << direction.y << std::endl;
@@ -68,16 +68,27 @@ bool game::check_path(int from_x, int from_y, int to_x, int to_y, std::unique_pt
 	return success;
 }
 
-bool game::check_move(int from_x, int from_y, int to_x, int to_y, std::unique_ptr<figure> board[6][6], bool first_player_playing) {
+bool game::is_on_board(int x,int y) {
+	return x >= 0 && x <= 5 && y >= 0 && y <= 5;
+}
+
+//checks if we move friendly troop, and if move can be made - if path is clear (or we jump/shoot) and if the destination is not occupied by friendly troop
+bool game::check_move(int from_x, int from_y, int to_x, int to_y) {
+	//check if both tiles are on the board
+	if (!is_on_board(from_x, from_y) || !is_on_board(to_x, to_y)) {
+		std::cout << "not correct coordinates";
+		return false;
+	}
+
 	//checks if the start is occupied by friendly troop
-	if (board[to_x][to_y] == NULL || board[to_x][to_y]->owned_by_first_player != first_player_playing) {
-		std::cout << "not";
+	if ((board[from_x][from_y]->owned_by_first_player && !first_player_plays) || (!board[from_x][from_y]->owned_by_first_player && first_player_plays)) {
+		std::cout << "No rights for moving this troop";
 		return false;
 	}
 	
 	//checks if the destination is not occupied by friendly troop
-	if (board[to_x][to_y] != NULL && board[to_x][to_y]->owned_by_first_player == first_player_playing) {
-		std::cout << "not";
+	if (board[to_x][to_y] != NULL && ((board[to_x][to_y]->owned_by_first_player && first_player_plays) || (board[to_x][to_y]->owned_by_first_player && first_player_plays))) {
+		std::cout << "There already is friendly troop on this tile";
 		return false;
 	}
 
@@ -100,7 +111,7 @@ bool game::check_move(int from_x, int from_y, int to_x, int to_y, std::unique_pt
 		switch (tile)
 		{
 		case nothing:
-			return check_path(from_x, from_y, to_x, to_y, board, first_player_playing);
+			return check_path(from_x, from_y, to_x, to_y);
 			break;
 		case walk:
 			std::cout << "walk";
@@ -125,7 +136,7 @@ bool game::check_move(int from_x, int from_y, int to_x, int to_y, std::unique_pt
 		}
 	}
 	else {
-		return check_path(from_x, from_y, to_x, to_y, board, first_player_playing);
+		return check_path(from_x, from_y, to_x, to_y);
 	}
 	return true;
 }
@@ -157,9 +168,7 @@ bool game::add_new_figure(int to_x, int to_y, troop name_of_troop) {
 	switch(name_of_troop){
 	case Duke:
 	{
-		//auto new_duke = ;
-		//std::unique_ptr<figure> value(&new_duke);
-		board[to_x][to_y] = std::unique_ptr<figure>(new duke(to_x, to_y, first_players_turn));
+		board[to_x][to_y] = std::unique_ptr<figure>(new duke(to_x, to_y, first_player_plays));
 		break;
 	}
 	default:
@@ -167,4 +176,15 @@ bool game::add_new_figure(int to_x, int to_y, troop name_of_troop) {
 		break;
 	}	
 	return true;
+}
+
+void game::move_troop(int from_x,int from_y,int to_x,int to_y) {
+	if (check_move(from_x, from_y, to_x, to_y)) {
+		board[to_x][to_y] = std::move(board[from_x][from_y]);
+		std::cout << "succesfully moved" <<std::endl;
+	}
+	else {
+		std::cout << "not so succesfully moved"<<std::endl;
+	}
+
 }
