@@ -7,16 +7,34 @@
 
 int main()
 {
-    game gameLogic;
-    gameLogic.add_new_figure(4,4,Duke);
-    gameLogic.add_new_figure(3, 4, Duke);
-    gameLogic.add_new_figure(2, 4, Duke);
-    gameLogic.print_board();
+    srand(time(NULL));
 
-    gameLogic.move_troop(2,4,5,4); //remove first to parameters x check it
+    game gameLogic;
+    gameLogic.add_new_figure(5,0,Wizard);
+    gameLogic.add_new_figure(3, 4, Marshall);
+    gameLogic.add_new_figure(2, 1, Duke);
+    gameLogic.add_new_figure(3, 0, Pikeman);
+    gameLogic.first_player_plays = false;
+    gameLogic.add_new_figure(0, 0, Duke);
+    gameLogic.add_new_figure(3, 3, Pikeman);
+    gameLogic.add_new_figure(4, 2, Pikeman);
+    gameLogic.add_new_figure(4, 3, Marshall);
     gameLogic.print_board();
-   /* if (gameLogic.board[0][0]->starting_position) {
-        std::cout << "Hello World!\n";
-    }*/
+    gameLogic.print_packs();
+    gameLogic.board[4][3]->starting_position = false;
+    gameLogic.check_command(4, 3, 4, 2, 5, 2);
+    gameLogic.move_troop(3, 3, 4, 2);
+    gameLogic.move_troop(0, 0, 5, 0);
+    gameLogic.print_board();
+    gameLogic.print_packs();
+   // gameLogic.move_troop
+    gameLogic.first_player_plays = true;
+    gameLogic.move_troop(2,1,1,1);
+    gameLogic.print_board();
+    gameLogic.print_packs();
+    //gameLogic.board[3][3]->print_boards();
+    gameLogic.board[1][1]->starting_position = false;
+    gameLogic.board[1][1]->print_boards();
+
 }
 

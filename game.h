@@ -1,9 +1,10 @@
 #pragma once
 #include "figures.h"
+#include "player.h"
 #include <array>
 #include <memory>
-
-enum troop{Duke,Ranger,Assassin,Wizard,General,Bowman,Champion,Knight,Marshall,Priest,Seer,Dragoon,Pikeman,Footman,Longbowman};
+#include <vector>
+class player;
 
 class game {
 public:
@@ -17,15 +18,32 @@ public:
 
 			}
 		}
+		//passing this to player may be redundant
+		first_player = player(true,this);
+		second_player = player(false, this);
 	}
-	std::unique_ptr<figure> board[6][6];
-	bool first_player_plays;
 
-	bool check_move(int from_x, int from_y, int to_x, int to_y);
-	bool check_path(int from_x, int from_y, int to_x, int to_y);
+	std::unique_ptr<figure> board[6][6];
+
+	bool first_player_plays;
+	player first_player;
+	player second_player;
+
+	types_of_moves get_move(int from_x, int from_y, int to_x, int to_y);
+	types_of_moves check_path(int from_x, int from_y, int to_x, int to_y);
 	directions get_directions(int difference_x, int difference_y);
-	bool add_new_figure(int to_x, int to_y, troop name_of_troop);
+
+	bool add_new_figure(int to_x, int to_y, troop_name name_of_troop);
+	bool remove_figure(int x, int y);
+
 	void print_board();
-	bool is_on_board(int x,int y);
+	void print_packs();
+
+	bool coordinates_on_board(int x,int y);
+	bool coordinates_on_move_board(int x, int y);
+
 	void move_troop(int from_x, int from_y, int to_x, int to_y);
+
+	bool check_walk(int from_x, int from_y, int to_x, int to_y);
+	bool check_command(int x, int y, int from_x, int from_y, int to_x, int to_y);
 };
