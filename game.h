@@ -19,8 +19,8 @@ public:
 			}
 		}
 		//passing this to player may be redundant
-		first_player = player(true,this);
-		second_player = player(false, this);
+		first_player = player(true,this,false);
+		second_player = player(false, this,true);
 	}
 
 	std::unique_ptr<figure> board[6][6];

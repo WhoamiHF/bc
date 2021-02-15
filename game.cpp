@@ -86,12 +86,18 @@ bool game::coordinates_on_move_board(int x, int y) {
 	return x >= 0 && x <= 4 && y >= 0 && y <= 4;
 }
 
+
+/* checks if figure on [x,y] can command figure to move from "from square" to "to square"
+* this means that figure has command (or walk_or_command) on move board (on both squares) and from square is occupied by friendly troop whilst to square is not.
+* 
+*/
 bool game::check_command(int x, int y, int from_x, int from_y, int to_x, int to_y) {
 	//figure: bool contains command, vector<x,y> command coordinates
 	int from_x_on_board = from_x - x + board[x][y]->position_on_move_board.x;
 	int from_y_on_board = from_y - y + board[x][y]->position_on_move_board.y;
 	int to_x_on_board = to_x - x + board[x][y]->position_on_move_board.x;
 	int to_y_on_board = to_y - y + board[x][y]->position_on_move_board.y;
+	//@todo: coordinates of all three are on board
 	if (coordinates_on_move_board(from_x_on_board, from_y_on_board) && coordinates_on_move_board(to_x_on_board, to_y_on_board)) {
 		if (board[from_x][from_y] != NULL && ((board[from_x][from_y]->owned_by_first_player && first_player_plays) || !board[from_x][from_y]->owned_by_first_player && !first_player_plays)) {
 			if(board[to_x][to_y] == NULL || ((board[to_x][to_y]->owned_by_first_player && !first_player_plays) || !board[to_x][to_y]->owned_by_first_player && first_player_plays)) {
@@ -103,13 +109,11 @@ bool game::check_command(int x, int y, int from_x, int from_y, int to_x, int to_
 
 			if ((move_board[from_x_on_board][from_y_on_board] == command || move_board[from_x_on_board][from_y_on_board] == walk_or_command) &&
 				(move_board[to_x_on_board][to_y_on_board] == command || move_board[to_x_on_board][to_y_on_board] == walk_or_command)) {
-				std::cout << "command ok";
 				return true;
 			}
 		}
 		}
 	}
-	std::cout << "command failed";
 	return false;
 }
 
@@ -137,19 +141,19 @@ bool game::check_walk(int from_x, int from_y, int to_x, int to_y) {
 types_of_moves game::get_move(int from_x, int from_y, int to_x, int to_y) {
 	//check if both tiles are on the board
 	if (!coordinates_on_board(from_x, from_y) || !coordinates_on_board(to_x, to_y)) {
-		std::cout << "not correct coordinates";
+		std::cout << "Coordinates are outside of the board. ";
 		return nothing;
 	}
 
 	//checks if the start is occupied by friendly troop
 	if (board[from_x][from_y] == NULL || (board[from_x][from_y]->owned_by_first_player && !first_player_plays) || (!board[from_x][from_y]->owned_by_first_player && first_player_plays)) {
-		std::cout << "No rights for moving this troop";
+		std::cout << "No rights for moving this troop. ";
 		return nothing;
 	}
 
 	//checks if the destination is not occupied by friendly troop
 	if (board[to_x][to_y] != NULL && ((board[to_x][to_y]->owned_by_first_player && first_player_plays) || (board[to_x][to_y]->owned_by_first_player && first_player_plays))) {
-		std::cout << "There already is friendly troop on this tile";
+		std::cout << "There already is friendly troop on this tile. ";
 		return nothing;
 	}
 
@@ -164,12 +168,12 @@ types_of_moves game::get_move(int from_x, int from_y, int to_x, int to_y) {
 		int cord_y = difference_y + board[from_x][from_y]->position_on_move_board.y;
 
 		//chooses current side of the board
-		types_of_moves tile = board[from_x][from_y]->other_moves[cord_x][cord_y];
+		auto move_board = board[from_x][from_y]->other_moves;
 		if (board[from_x][from_y]->starting_moves) {
-			tile = board[from_x][from_y]->starting_moves[cord_x][cord_y];
+			move_board = board[from_x][from_y]->starting_moves;
 		}
 
-		switch (tile)
+		switch (move_board[cord_x][cord_y])
 		{
 		case nothing:
 			return check_path(from_x, from_y, to_x, to_y);
@@ -183,29 +187,43 @@ types_of_moves game::get_move(int from_x, int from_y, int to_x, int to_y) {
 			break;
 		}
 		case slide:
-			std::cout << "slide";
 			return slide;
 			break;
 		case jump_and_slide:
-			std::cout << "jump+slide";
 			return jump_and_slide;
 			break;
 		case shoot:
 			if (board[to_x][to_y] == NULL) {
 				return nothing;
 			}
-			std::cout << "shoot";
 			return shoot;
 			break;
 		case jump:
-			std::cout << "jump";
 			return jump;
 			break;
 		case walk_or_command:
 		{
-			bool walkable = check_walk(from_x, from_y, to_x, to_y);
+			/*bool want_to_walk = false;
+			//get decision
+			if (want_to_walk) {
+				if (check_walk(from_x, from_y, to_x, to_y)) {
+					return walk;
+				}
+				return nothing;
+			}
+			else {
+				int x = 0;
+				int y = 0;
+				//get coordinates
+				if (check_command(from_x, from_y, to_x, to_y, x, y)) {
+					return command;
+				}
+			}
+			*/
 			break;
 		}
+		case command:
+			break;
 		default:
 			break;
 		}
@@ -228,8 +246,8 @@ void game::print_board() {
 			}
 		}
 		std::cout << std::endl;
-
 	}
+	std::cout << std::endl;
 }
 
 
@@ -307,13 +325,15 @@ void game::move_troop(int from_x, int from_y, int to_x, int to_y) {
 	auto move = get_move(from_x, from_y, to_x, to_y);
 	switch (move) {
 	case nothing:
-		std::cout << "not so succesfully moved" << std::endl;
+		std::cout << "Move from [" <<from_x << "," << from_y<<"] to ["<<to_x<<","<<to_y<<"] was not succesful"  << std::endl;
 		break;
 	case shoot:
-		std::cout << "shoot";
+		std::cout << "Succesful move from [" << from_x << "," << from_y << "] to [" << to_x << "," << to_y << "]" << std::endl;
 		remove_figure(to_x, to_y);
+		board[from_x][from_y]->starting_position = !board[from_x][from_y]->starting_position; //troop stays on same position, but changes moves
 		break;
 	default:
+		std::cout << "Succesful move from [" << from_x << "," << from_y << "] to [" << to_x << "," << to_y << "]" << std::endl;
 		if (board[to_x][to_y] != NULL) {
 			remove_figure(to_x, to_y);
 		}
@@ -324,8 +344,7 @@ void game::move_troop(int from_x, int from_y, int to_x, int to_y) {
 		else {
 			second_player.change_coordinates(from_x, from_y, to_x, to_y);
 		}
-		std::cout << "succesfully moved" << std::endl;
-		//change coordinates of moved troop in player actives
+		board[to_x][to_y]->starting_position = !board[to_x][to_y]->starting_position; //troop has moved
 		break;
 	}
 }

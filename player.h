@@ -20,11 +20,12 @@ public:
 class player {
 public:
 	player() = default;
-	player(bool _first_player, game* game_logic_) {
+	player(bool _first_player, game* game_logic_,bool played_by_pc_) {
 		first_player = _first_player;
 		active_troops = std::vector<troop>();
 		pack_troops = std::vector<troop_name>{ Duke, Footman,Footman,Footman,Pikeman,Pikeman,Pikeman,Marshall,General,Longbowman,Priest,Ranger,Knight,Assassin,Dragoon,Champion,Wizard,Seer,Bowman };
 		game_logic = game_logic_;
+		played_by_pc = played_by_pc_;
 	}
 
 	troop_name pick_random_pack_figure();
@@ -38,6 +39,7 @@ public:
 	void print_pack();
 	
 	bool first_player;
+	bool played_by_pc;
 	game* game_logic; //may be redundant
 	std::vector<troop> active_troops;
 	std::vector<troop_name> pack_troops;

@@ -24,17 +24,17 @@ int main()
     gameLogic.board[4][3]->starting_position = false;
     gameLogic.check_command(4, 3, 4, 2, 5, 2);
     gameLogic.move_troop(3, 3, 4, 2);
-    gameLogic.move_troop(0, 0, 5, 0);
+    gameLogic.move_troop(0, 0, 7, 0);
     gameLogic.print_board();
     gameLogic.print_packs();
    // gameLogic.move_troop
-    gameLogic.first_player_plays = true;
+   // gameLogic.first_player_plays = true;
     gameLogic.move_troop(2,1,1,1);
     gameLogic.print_board();
     gameLogic.print_packs();
     //gameLogic.board[3][3]->print_boards();
-    gameLogic.board[1][1]->starting_position = false;
-    gameLogic.board[1][1]->print_boards();
+   // gameLogic.board[1][1]->starting_position = false;
+    //gameLogic.board[1][1]->print_boards(); //beware of null
 
 }
 
