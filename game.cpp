@@ -3,6 +3,8 @@
 #include <array>
 #include <memory>
 #include <algorithm>
+#include <string>
+#include <sstream>
 
 //@todo: could be private
 /*gets differences and returns vector and it's "length" (number of movements in this direction before reaching destination)
@@ -161,6 +163,7 @@ types_of_moves game::get_move(int from_x, int from_y, int to_x, int to_y) {
 	int difference_y = to_y - from_y;
 
 	//checks if the destination is on troops move board
+	//@todo:longbowman
 	if (abs(difference_x) <= 2 && abs(difference_y) <= 2) {
 
 		//gets coordinations on move board 
@@ -169,7 +172,7 @@ types_of_moves game::get_move(int from_x, int from_y, int to_x, int to_y) {
 
 		//chooses current side of the board
 		auto move_board = board[from_x][from_y]->other_moves;
-		if (board[from_x][from_y]->starting_moves) {
+		if (board[from_x][from_y]->starting_position) {
 			move_board = board[from_x][from_y]->starting_moves;
 		}
 
@@ -250,14 +253,28 @@ void game::print_board() {
 	std::cout << std::endl;
 }
 
+bool game::is_there_duke(int x, int y) {
+	if (coordinates_on_board(x, y) && board[x][y] != NULL && board[x][y]->name == "Duke" && ((board[x][y]->owned_by_first_player && first_player_plays) || (!board[x][y]->owned_by_first_player && !first_player_plays))) {
+		return true;
+	}
+}
+
+bool game::is_next_to_duke(int x,int y) {
+	return is_there_duke(x - 1, y) || is_there_duke(x + 1, y) || is_there_duke(x, y - 1) || is_there_duke(x, y + 1);
+
+}
 
 bool game::add_new_figure(int to_x, int to_y, troop_name name_of_troop) {
 	if (board[to_x][to_y] != NULL) {
 		return false;
 	}
 
-	bool was_available = false;
+	if (name_of_troop != Duke && !is_next_to_duke(to_x,to_y)) {
+		std::cout << "add new troop next to your Duke" << std::endl;
+		return false;
+	}
 
+	bool was_available = false;
 	if (first_player_plays) {
 		was_available = first_player.deploy_troop(name_of_troop, to_x, to_y);
 	}
@@ -355,6 +372,9 @@ bool game::remove_figure(int x, int y) {
 	if (x < 0 || x>5 || y < 0 || y>5) {
 		return false;
 	}
+	if (board[x][y]->name == "Duke") {
+		gameover = true;
+	}
 	if (board[x][y]->owned_by_first_player) {
 		first_player.kill_troop(x, y);
 	}
@@ -374,4 +394,71 @@ void game::print_packs() {
 	first_player.print_pack();
 	second_player.print_pack();
 	std::cout << "-----------------------------" << std::endl << std::endl;
+}
+
+bool game::player_play(player& current_player) {
+	std::string row = "";
+	std::cout << "Please insert command and arguments separated by spaces" <<std::endl;
+	std::getline(std::cin, row);
+	std::stringstream s(row);
+	std::string command;
+	if (s >> command) {
+		std::cout << command << std::endl;
+	}
+	if (command == "move") {
+		int fx, fy,tx,ty;
+		s >> command;
+		fx = std::stoi(command);
+		s >> command;
+		fy = std::stoi(command);
+		s >> command;
+		tx = std::stoi(command);
+		s >> command;
+		ty = std::stoi(command);
+		move_troop(fx, fy, tx, ty);
+	}
+	else if (command == "add") {
+		int tx, ty;
+		s >> command;
+		tx = std::stoi(command);
+		s >> command;
+		ty = std::stoi(command);
+		troop_name name;
+		if (first_player_plays) {
+			name = first_player.pick_random_pack_figure();
+		}
+		else {
+			name = second_player.pick_random_pack_figure();
+		}
+		return add_new_figure(tx, ty, name);
+	}
+	else {
+		return false;
+	}
+
+	return true;
+}
+
+void game::play() {
+	gameover = false;
+	while (!gameover) {
+		print_board();
+		std::cout << "player one" << std::endl;
+		first_player_plays = true;
+		while(!player_play(first_player)){}
+		print_board();
+
+		if (gameover) {
+			std::cout << "player one won!" << std::endl;
+			break;
+		}
+
+		std::cout << "player two" << std::endl;
+		first_player_plays = false;
+		while (!player_play(second_player)) {}
+		if (gameover) {
+			std::cout << "player two won!" << std::endl;
+			break;
+		}
+	}
 }

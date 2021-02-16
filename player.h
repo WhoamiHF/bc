@@ -37,7 +37,7 @@ public:
 	void print_symbol(troop_name name);
 	void print_active();
 	void print_pack();
-	
+	void play();
 	bool first_player;
 	bool played_by_pc;
 	game* game_logic; //may be redundant

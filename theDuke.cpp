@@ -11,14 +11,19 @@ int main()
 
     game gameLogic;
     gameLogic.add_new_figure(5,0,Wizard);
-    gameLogic.add_new_figure(3, 4, Marshall);
-    gameLogic.add_new_figure(2, 1, Duke);
-    gameLogic.add_new_figure(3, 0, Pikeman);
-    gameLogic.first_player_plays = false;
-    gameLogic.add_new_figure(0, 0, Duke);
-    gameLogic.add_new_figure(3, 3, Pikeman);
-    gameLogic.add_new_figure(4, 2, Pikeman);
-    gameLogic.add_new_figure(4, 3, Marshall);
+gameLogic.add_new_figure(3, 4, Marshall);
+gameLogic.add_new_figure(2, 1, Duke);
+gameLogic.add_new_figure(3, 0, Pikeman);
+gameLogic.first_player_plays = false;
+gameLogic.add_new_figure(0, 0, Duke);
+gameLogic.add_new_figure(3, 3, Pikeman);
+gameLogic.add_new_figure(4, 2, Pikeman);
+gameLogic.add_new_figure(4, 3, Marshall);
+gameLogic.first_player_plays = true;
+/*gameLogic.move_troop(2, 1, 1, 1);
+gameLogic.move_troop(1, 1, 2, 1);*/
+    gameLogic.play();
+    /*
     gameLogic.print_board();
     gameLogic.print_packs();
     gameLogic.board[4][3]->starting_position = false;
@@ -35,6 +40,6 @@ int main()
     //gameLogic.board[3][3]->print_boards();
    // gameLogic.board[1][1]->starting_position = false;
     //gameLogic.board[1][1]->print_boards(); //beware of null
-
+    */
 }
 

@@ -21,6 +21,7 @@ public:
 		//passing this to player may be redundant
 		first_player = player(true,this,false);
 		second_player = player(false, this,true);
+		gameover = false;
 	}
 
 	std::unique_ptr<figure> board[6][6];
@@ -28,6 +29,8 @@ public:
 	bool first_player_plays;
 	player first_player;
 	player second_player;
+
+	bool gameover;
 
 	types_of_moves get_move(int from_x, int from_y, int to_x, int to_y);
 	types_of_moves check_path(int from_x, int from_y, int to_x, int to_y);
@@ -46,4 +49,10 @@ public:
 
 	bool check_walk(int from_x, int from_y, int to_x, int to_y);
 	bool check_command(int x, int y, int from_x, int from_y, int to_x, int to_y);
+
+	bool is_next_to_duke(int x, int y);
+	bool is_there_duke(int x, int y);
+
+	bool player_play(player& current_player);
+	void play();
 };

@@ -39,6 +39,7 @@ public:
 			has_command = false;
 			command_squares = std::set<coordinates>();
 			position_on_move_board = coordinates(2, 2);
+			name = "";
 		}
 	}
 	virtual std::string return_symbol()= 0;
@@ -55,6 +56,7 @@ public:
 	int position_x;
 	int position_y;
 	bool owned_by_first_player;
+	std::string name;
 
 	void print_boards() {
 		std::cout << "current" << std::endl;
@@ -132,6 +134,7 @@ public:
 		other_moves[2][3] = slide;
 
 		owned_by_first_player = first_player;
+		name = "Duke";
 	}
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -156,6 +159,7 @@ public:
 		other_moves[2][4] = walk;
 
 		owned_by_first_player = first_player;
+		name = "Pikeman";
 	}
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -190,6 +194,7 @@ public:
 
 
 		owned_by_first_player = first_player;
+		name = "Seer";
 	}
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -217,6 +222,7 @@ public:
 		other_moves[3][4] = jump;
 
 		owned_by_first_player = first_player;
+		name = "Ranger";
 	}
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -245,6 +251,7 @@ public:
 		other_moves[4][4] = walk;
 
 		owned_by_first_player = first_player;
+		name = "Knight";
 	}
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -273,6 +280,7 @@ public:
 		other_moves[3][3] = walk;
 
 		owned_by_first_player = first_player;
+		name = "Bowman";
 	}
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -302,6 +310,7 @@ public:
 		other_moves[2][1] = walk;
 
 		owned_by_first_player = first_player;
+		name = "Dragoon";
 	}
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -326,6 +335,7 @@ public:
 		starting_moves[3][2] = walk;
 
 		owned_by_first_player = first_player;
+		name = "Footman";
 	}
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -347,6 +357,7 @@ public:
 		other_moves[2][4] = jump_and_slide;
 
 		owned_by_first_player = first_player;
+		name = "Assassin";
 	}
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -375,6 +386,7 @@ public:
 		other_moves[4][4] = jump;
 
 		owned_by_first_player = first_player;
+		name = "Priest";
 	}
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -406,6 +418,7 @@ public:
 		other_moves[4][2] = jump;
 
 		owned_by_first_player = first_player;
+		name = "Wizard";
 	}
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -438,6 +451,7 @@ public:
 		other_moves[4][2] = walk;
 
 		owned_by_first_player = first_player;
+		name = "Marshall";
 	}
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -472,6 +486,7 @@ public:
 		other_moves[2][4] = shoot;
 
 		owned_by_first_player = first_player;
+		name = "Champion";
 	}
 
 	std::string return_symbol() {
@@ -508,6 +523,7 @@ public:
 		other_moves[3][3] = command;
 
 		owned_by_first_player = first_player;
+		name = "General";
 	}
 
 	std::string return_symbol() {
@@ -534,6 +550,7 @@ public:
 
 		owned_by_first_player = first_player;
 		position_on_move_board = coordinates(2, 3);
+		name = "Longbowman";
 	}
 
 	std::string return_symbol() {

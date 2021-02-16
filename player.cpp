@@ -136,3 +136,10 @@ void player::change_coordinates(int fx, int fy, int tx, int ty) {
 		}	
 	}
 }
+
+void player::play() {
+	/*int x, y;
+	std::cout << "give x and y separated by space" << std::endl;
+	std::cin >> x >> y;
+	*/
+}
