@@ -2,7 +2,8 @@
 #include <iostream>
 #include <array>
 #include <memory>
-#include <set>
+#include <set> //possibly redundant
+#include <vector>
 
 enum types_of_moves { nothing, walk, slide, jump_and_slide, shoot, jump,command,walk_or_command };
 
@@ -36,8 +37,8 @@ public:
 				starting_moves[i][j] = nothing;
 				other_moves[i][j] = nothing;
 			}
-			has_command = false;
-			command_squares = std::set<coordinates>();
+			command_squares_starting = std::vector<coordinates>();
+			command_squares_other = std::vector<coordinates>();
 			position_on_move_board = coordinates(2, 2);
 			name = "";
 		}
@@ -45,7 +46,8 @@ public:
 	virtual std::string return_symbol()= 0;
 
 	bool has_command;
-	std::set<coordinates> command_squares;
+	std::vector<coordinates> command_squares_starting;
+	std::vector<coordinates> command_squares_other;
 
 	bool starting_position = true;
 	types_of_moves starting_moves[5][5];
@@ -122,7 +124,7 @@ public:
 	}
 };
 
-//-----------------------------------------------------Figure declarations------------------------------------------------------------------//
+//-----------------------------------------------------Figures declarations------------------------------------------------------------------//
 
 class duke : public figure {
 public:
@@ -353,7 +355,7 @@ public:
 		starting_moves[4][4] = jump_and_slide;
 
 		other_moves[0][0] = jump_and_slide;
-		other_moves[0][4] = jump_and_slide;
+		other_moves[4][0] = jump_and_slide;
 		other_moves[2][4] = jump_and_slide;
 
 		owned_by_first_player = first_player;
@@ -437,7 +439,7 @@ public:
 		starting_moves[2][4] = jump;
 
 		starting_moves[1][2] = slide;
-		starting_moves[3][1] = slide;
+		starting_moves[3][2] = slide;
 
 		other_moves[1][1] = walk_or_command;
 		other_moves[2][1] = walk_or_command;
@@ -451,6 +453,9 @@ public:
 		other_moves[4][2] = walk;
 
 		owned_by_first_player = first_player;
+		command_squares_other.push_back(coordinates(1, 1));
+		command_squares_other.push_back(coordinates(2, 1));
+		command_squares_other.push_back(coordinates(3, 1));
 		name = "Marshall";
 	}
 	std::string return_symbol() {
@@ -523,6 +528,11 @@ public:
 		other_moves[3][3] = command;
 
 		owned_by_first_player = first_player;
+		command_squares_other.push_back(coordinates(1, 2)); 
+		command_squares_other.push_back(coordinates(1, 3));
+		command_squares_other.push_back(coordinates(2, 3));
+		command_squares_other.push_back(coordinates(3, 3));
+		command_squares_other.push_back(coordinates(3, 2));
 		name = "General";
 	}
 

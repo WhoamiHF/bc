@@ -1,8 +1,6 @@
 #pragma once
 #include <vector>
 
-class game;
-
 enum troop_name { Nothing, Duke, Ranger, Assassin, Wizard, General, Bowman, Champion, Knight, Marshall, Priest, Seer, Dragoon, Pikeman, Footman, Longbowman };
 
 class troop {
@@ -20,11 +18,10 @@ public:
 class player {
 public:
 	player() = default;
-	player(bool _first_player, game* game_logic_,bool played_by_pc_) {
+	player(bool _first_player, bool played_by_pc_) {
 		first_player = _first_player;
 		active_troops = std::vector<troop>();
 		pack_troops = std::vector<troop_name>{ Duke, Footman,Footman,Footman,Pikeman,Pikeman,Pikeman,Marshall,General,Longbowman,Priest,Ranger,Knight,Assassin,Dragoon,Champion,Wizard,Seer,Bowman };
-		game_logic = game_logic_;
 		played_by_pc = played_by_pc_;
 	}
 
@@ -37,10 +34,8 @@ public:
 	void print_symbol(troop_name name);
 	void print_active();
 	void print_pack();
-	void play();
 	bool first_player;
 	bool played_by_pc;
-	game* game_logic; //may be redundant
 	std::vector<troop> active_troops;
 	std::vector<troop_name> pack_troops;
 };
