@@ -1,58 +1,61 @@
 #include "player.h"
 #include <iostream>
-
+#include <algorithm> 
+#include <vector>
+#include <string>
+#include "figures.h"
 /*	returns random name of figure which is in the pack
  * does NOT deploy -> for deployment is used function "deploy_troop"
 */
-troop_name player::pick_random_pack_figure() {
-	size_t size = pack_troops.size();
+troop_name player::pick_random_backup_figure() {
+	size_t size = packs.backup.size();
 
 	if (size == 0) {
 		return Nothing;
 	}
 
 	size_t index = rand() % size;
-	troop_name new_unit = pack_troops[index];
+	troop_name new_unit = packs.backup[index];
 
 	return new_unit;
 }
 
 /* checks if the troop is available
 * it is called by game::add_new_figure which checks for emptiness of square
-* then it deployes troop - removes from pack and adds to active troops.
+* then it deployes troop - removes from backup pack and adds to active troops.
 * caller is responsible for putting the troop on the board - this function simply updates player's packs
-*/
+
 bool player::deploy_troop(troop_name figure, int x, int y) {
 	if (x < 0 || x>5 || y < 0 || y>5) {
 		return false;
 	}
 
-	auto iterator = std::find(pack_troops.begin(), pack_troops.end(), figure);
-	if (iterator != pack_troops.end()) {
-		active_troops.push_back(troop(x, y, *iterator));
-		pack_troops.erase(iterator);
+	auto iterator = std::find(packs.backup.begin(), packs.backup.end(), figure);
+	if (iterator != packs.backup.end()) {
+		packs.active.push_back(troop(x, y, *iterator));
+		packs.backup.erase(iterator);
 		return true;
 	}
 	else {
 		return false;
 		std::cout << "not found";
 	}
-}
+}*/
 
 /** called by game::remove_figure()
 *	removes troop from player's active troops (ergo killing it)
 *	caller is responsible for removing the troop from the board - this function simply updates player's active pack
 */
 void player::kill_troop(int x, int y) {
-	for (auto it = active_troops.begin(); it != active_troops.end(); it++) {
+	for (auto it = packs.active.begin(); it != packs.active.end(); it++) {
 		if (it->x == x && it->y == y) {
-			active_troops.erase(it);
+			packs.active.erase(it);
 			break;
 		}
 	}
 }
 
-/* Just a big switch on troops name for printing active/reserve pack
+/* Just a big switch on troops name for printing active/backup pack
 */
 void player::print_symbol(troop_name name) {
 	switch (name) {
@@ -109,16 +112,16 @@ void player::print_symbol(troop_name name) {
 
 /* As name suggests it prints names and coordinates of active troops*/
 void player::print_active() {
-	for (const auto& figure : active_troops) {
+	for (const auto& figure : packs.active) {
 		print_symbol(figure.name);
 		std::cout << "[" << figure.x << "," << figure.y << "] ";
 	}
 	std::cout << std::endl;
 }
 
-/* As name suggests it prints names (pack troops don't have coordinates) of pack troops*/
-void player::print_pack() {
-	for (const auto& figure : pack_troops) {
+/* As name suggests it prints names (backup troops don't have coordinates) of backup troops*/
+void player::print_backup() {
+	for (const auto& figure : packs.backup) {
 		print_symbol(figure);
 	}
 	std::cout << std::endl;
@@ -128,7 +131,7 @@ void player::print_pack() {
 	Because it's called after moving caller is responsible for checking legality of the move 	
 */
 void player::change_coordinates(int fx, int fy, int tx, int ty) {
-	for (auto& figure : active_troops) {
+	for (auto& figure : packs.active) {
 		if (figure.x == fx && figure.y == fy) {
 			figure.x = tx;
 			figure.y = ty;
@@ -136,3 +139,44 @@ void player::change_coordinates(int fx, int fy, int tx, int ty) {
 		}	
 	}
 }
+
+struct compare_troops
+{
+	inline bool operator()(const troop& first, const troop& second) {
+		return first.name < second.name || (first.name == second.name && first.x < second.x) || (first.name == second.name && first.x == second.x && first.y < second.y);
+	}
+};
+/*bool player::compare_troops(const troop& first,const troop& second) {
+	return (first.name < second.name || (first.name == second.name && first.x < second.x) || (first.name == second.name && first.x == second.x && first.y < second.y));
+}*/
+
+bool compare_troops(const troop& first, const troop& second) {
+	return (first.name < second.name || (first.name == second.name && first.x < second.x) || (first.name == second.name && first.x == second.x && first.y < second.y));
+}
+
+void player::sort_active_pack() {
+	std::sort(packs.active.begin(), packs.active.end(),&compare_troops);
+}
+
+/* checks if the troop is available
+* it is called by game::add_new_figure which checks for emptiness of square
+* then it deployes troop - removes from backup pack and adds to active troops.
+* caller is responsible for putting the troop on the board - this function simply updates player's packs
+*/
+bool packs_t::deploy_troop(troop_name figure, int x, int y) {
+	if (x < 0 || x>5 || y < 0 || y>5) {
+		return false;
+	}
+
+	auto iterator = std::find(backup.begin(), backup.end(), figure);
+	if (iterator != backup.end()) {
+		active.push_back(troop(x, y, *iterator));
+		backup.erase(iterator);
+		return true;
+	}
+	else {
+		return false;
+		std::cout << "not found";
+	}
+}
+

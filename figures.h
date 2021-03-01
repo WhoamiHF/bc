@@ -41,15 +41,17 @@ public:
 			command_squares_other = std::vector<coordinates>();
 			position_on_move_board = coordinates(2, 2);
 			name = "";
+			starting_position = true;
 		}
 	}
-	virtual std::string return_symbol()= 0;
 
+	virtual std::unique_ptr<figure> clone() = 0;
+	virtual std::string return_symbol()= 0;
 	bool has_command;
 	std::vector<coordinates> command_squares_starting;
 	std::vector<coordinates> command_squares_other;
 
-	bool starting_position = true;
+	bool starting_position;
 	types_of_moves starting_moves[5][5];
 	types_of_moves other_moves[5][5];
 	
@@ -128,27 +130,59 @@ public:
 
 class duke : public figure {
 public:
-	duke(int x_,int y_, bool first_player) {
+	duke(bool first_player) {
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "Duke";
+	}
+
+	duke(bool first_player,bool starting_position_) {
+		starting_position = starting_position_;
+		set_moves();		
+
+		owned_by_first_player = first_player;
+		name = "Duke";
+	}
+
+	void set_moves() {
 		starting_moves[1][2] = slide;
 		starting_moves[3][2] = slide;
 
 		other_moves[2][1] = slide;
 		other_moves[2][3] = slide;
-
-		owned_by_first_player = first_player;
-		name = "Duke";
 	}
+
 	std::string return_symbol() {
 		if (owned_by_first_player) {
 			return "D1";
 		}
 		return "D2";
 	}
+
+	std::unique_ptr<figure> clone() override {
+		return std::make_unique<duke>(owned_by_first_player,starting_position); 
+	}
 };
 
 class pikeman : public figure {
 public:
-	pikeman(int x_, int y_, bool first_player) {
+	pikeman(bool first_player) {
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "Pikeman";
+	}
+
+	pikeman(bool first_player,bool starting_position_) {
+		starting_position = starting_position_;
+		set_moves();
+		
+		owned_by_first_player = first_player;
+		name = "Pikeman";
+	}
+
+	void set_moves() {
 		starting_moves[0][0] = walk;
 		starting_moves[1][1] = walk;
 		starting_moves[3][1] = walk;
@@ -159,21 +193,38 @@ public:
 		other_moves[2][1] = walk;
 		other_moves[2][3] = walk;
 		other_moves[2][4] = walk;
-
-		owned_by_first_player = first_player;
-		name = "Pikeman";
 	}
+
 	std::string return_symbol() {
 		if (owned_by_first_player) {
 			return "P1";
 		}
 		return "P2";
 	}
+
+	std::unique_ptr<figure> clone() override {
+		return std::make_unique<pikeman>(owned_by_first_player,starting_position);
+	}
 };
 
 class seer : public figure {
 public:
-	seer(int x_, int y_, bool first_player) {
+	seer(bool first_player) {
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "Seer";
+	}
+
+	seer(bool first_player, bool starting_position_) {
+		starting_position = starting_position_;
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "Seer";
+	}
+
+	void set_moves() {
 		starting_moves[2][0] = jump;
 		starting_moves[0][2] = jump;
 		starting_moves[4][2] = jump;
@@ -193,10 +244,6 @@ public:
 		other_moves[1][2] = walk;
 		other_moves[3][2] = walk;
 		other_moves[2][3] = walk;
-
-
-		owned_by_first_player = first_player;
-		name = "Seer";
 	}
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -204,14 +251,33 @@ public:
 		}
 		return "S2";
 	}
+
+	std::unique_ptr<figure> clone() override {
+		return std::make_unique<seer>(owned_by_first_player,starting_position); 
+	}
 };
 
 class ranger : public figure {
 public:
-	ranger(int x_, int y_, bool first_player) {
+	ranger(bool first_player) {
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "Ranger";
+	}
+
+	ranger(bool first_player, bool starting_position_) {
+		starting_position = starting_position_;
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "Ranger";
+	}
+
+	void set_moves() {
 		starting_moves[2][1] = slide;
 		starting_moves[2][3] = slide;
-		
+
 		starting_moves[0][1] = jump;
 		starting_moves[1][0] = jump;
 		starting_moves[3][0] = jump;
@@ -222,9 +288,6 @@ public:
 
 		other_moves[1][4] = jump;
 		other_moves[3][4] = jump;
-
-		owned_by_first_player = first_player;
-		name = "Ranger";
 	}
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -232,11 +295,30 @@ public:
 		}
 		return "R2";
 	}
+
+	std::unique_ptr<figure> clone() override {
+		return std::make_unique<ranger>(owned_by_first_player, starting_position);
+	}
+
 };
 
 class knight : public figure {
 public:
-	knight(int x_, int y_, bool first_player) {
+	knight(bool first_player) {
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "Knight";
+	}
+
+	knight(bool first_player, bool starting_position_) {
+		starting_position = starting_position_;
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "Knight";
+	}
+	void set_moves() {
 		starting_moves[1][0] = jump;
 		starting_moves[3][0] = jump;
 
@@ -251,9 +333,6 @@ public:
 		other_moves[0][4] = walk;
 		other_moves[3][3] = walk;
 		other_moves[4][4] = walk;
-
-		owned_by_first_player = first_player;
-		name = "Knight";
 	}
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -261,11 +340,30 @@ public:
 		}
 		return "K2";
 	}
+
+	std::unique_ptr<figure> clone() override {
+		return std::make_unique<knight>(owned_by_first_player, starting_position);
+	}
 };
 
 class bowman : public figure {
 public:
-	bowman(int x_, int y_, bool first_player) {
+	bowman(bool first_player) {
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "Bowman";
+	}
+
+	bowman(bool first_player, bool starting_position_) {
+		starting_position = starting_position_;
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "Bowman";
+	}
+
+	void set_moves() {
 		starting_moves[2][1] = walk;
 		starting_moves[1][2] = walk;
 		starting_moves[3][2] = walk;
@@ -280,21 +378,39 @@ public:
 
 		other_moves[1][3] = walk;
 		other_moves[3][3] = walk;
-
-		owned_by_first_player = first_player;
-		name = "Bowman";
 	}
+
 	std::string return_symbol() {
 		if (owned_by_first_player) {
 			return "B1";
 		}
 		return "B2";
 	}
+
+	std::unique_ptr<figure> clone() override {
+		return std::make_unique<bowman>(owned_by_first_player, starting_position);
+	}
+
 };
 
 class dragoon : public figure {
 public:
-	dragoon(int x_, int y_, bool first_player) {
+	dragoon(bool first_player) {
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "Dragoon";
+	}
+
+	dragoon(bool first_player, bool starting_position_) {
+		starting_position = starting_position_;
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "Dragoon";
+	}
+
+	void set_moves() {
 		starting_moves[0][0] = shoot;
 		starting_moves[2][0] = shoot;
 		starting_moves[4][0] = shoot;
@@ -310,9 +426,6 @@ public:
 
 		other_moves[2][0] = walk;
 		other_moves[2][1] = walk;
-
-		owned_by_first_player = first_player;
-		name = "Dragoon";
 	}
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -320,11 +433,31 @@ public:
 		}
 		return "X2";
 	}
+
+	std::unique_ptr<figure> clone() override {
+		return std::make_unique<dragoon>(owned_by_first_player, starting_position);
+	}
+
 };
 
 class footman : public figure {
 public:
-	footman(int x_, int y_, bool first_player) {
+	footman(bool first_player) {
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "Footman";
+	}
+
+	footman(bool first_player, bool starting_position_) {
+		starting_position = starting_position_;
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "Footman";
+	}
+
+	void set_moves() {
 		other_moves[2][0] = walk;
 		other_moves[1][1] = walk;
 		other_moves[3][1] = walk;
@@ -335,9 +468,6 @@ public:
 		starting_moves[1][2] = walk;
 		starting_moves[2][3] = walk;
 		starting_moves[3][2] = walk;
-
-		owned_by_first_player = first_player;
-		name = "Footman";
 	}
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -345,11 +475,31 @@ public:
 		}
 		return "F2";
 	}
+
+	std::unique_ptr<figure> clone() override {
+		return std::make_unique<footman>(owned_by_first_player, starting_position);
+	}
+
 };
 
 class assassin : public figure {
 public:
-	assassin(int x_, int y_, bool first_player) {
+	assassin(bool first_player) {
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "Assassin";
+	}
+
+	assassin(bool first_player, bool starting_position_) {
+		starting_position = starting_position_;
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "Assassin";
+	}
+
+	void set_moves() {
 		starting_moves[2][0] = jump_and_slide;
 		starting_moves[0][4] = jump_and_slide;
 		starting_moves[4][4] = jump_and_slide;
@@ -357,9 +507,6 @@ public:
 		other_moves[0][0] = jump_and_slide;
 		other_moves[4][0] = jump_and_slide;
 		other_moves[2][4] = jump_and_slide;
-
-		owned_by_first_player = first_player;
-		name = "Assassin";
 	}
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -367,11 +514,31 @@ public:
 		}
 		return "A2";
 	}
+
+	std::unique_ptr<figure> clone() override {
+		return std::make_unique<assassin>(owned_by_first_player, starting_position);
+	}
+
 };
 
 class priest : public figure {
 public:
-	priest(int x_, int y_, bool first_player) {
+	priest(bool first_player) {
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "Priest";
+	}
+
+	priest(bool first_player, bool starting_position_) {
+		starting_position = starting_position_;
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "Priest";
+	}
+
+	void set_moves() {
 		starting_moves[1][1] = slide;
 		starting_moves[3][1] = slide;
 		starting_moves[1][3] = slide;
@@ -386,21 +553,38 @@ public:
 		other_moves[4][0] = jump;
 		other_moves[0][4] = jump;
 		other_moves[4][4] = jump;
-
-		owned_by_first_player = first_player;
-		name = "Priest";
 	}
+
 	std::string return_symbol() {
 		if (owned_by_first_player) {
 			return "E1";
 		}
 		return "E2";
 	}
+
+	std::unique_ptr<figure> clone() override {
+		return std::make_unique<priest>(owned_by_first_player, starting_position);
+	}
 };
 
 class wizard : public figure {
 public:
-	wizard(int x_, int y_, bool first_player) {
+	wizard(bool first_player) {
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "Wizard";
+	}
+
+	wizard(bool first_player, bool starting_position_) {
+		starting_position = starting_position_;
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "Wizard";
+	}
+
+	void set_moves() {
 		starting_moves[1][1] = walk;
 		starting_moves[2][1] = walk;
 		starting_moves[3][1] = walk;
@@ -418,22 +602,40 @@ public:
 		other_moves[2][4] = jump;
 		other_moves[4][4] = jump;
 		other_moves[4][2] = jump;
-
-		owned_by_first_player = first_player;
-		name = "Wizard";
 	}
+
 	std::string return_symbol() {
 		if (owned_by_first_player) {
 			return "W1";
 		}
 		return "W2";
 	}
+
+	std::unique_ptr<figure> clone() override {
+		return std::make_unique<wizard>(owned_by_first_player, starting_position);
+	}
+
 };
 
 
 class marshall : public figure {
 public:
-	marshall(int x_, int y_, bool first_player) {
+	marshall(bool first_player) {
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "Marshall";
+	}
+
+	marshall(bool first_player, bool starting_position_) {
+		starting_position = starting_position_;
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "Marshall";
+	}
+
+	void set_moves() {
 		starting_moves[0][0] = jump;
 		starting_moves[4][0] = jump;
 		starting_moves[2][4] = jump;
@@ -452,24 +654,42 @@ public:
 		other_moves[3][2] = walk;
 		other_moves[4][2] = walk;
 
-		owned_by_first_player = first_player;
 		command_squares_other.push_back(coordinates(1, 1));
 		command_squares_other.push_back(coordinates(2, 1));
 		command_squares_other.push_back(coordinates(3, 1));
-		name = "Marshall";
 	}
+
 	std::string return_symbol() {
 		if (owned_by_first_player) {
 			return "M1";
 		}
 		return "M2";
 	}
+
+	std::unique_ptr<figure> clone() override {
+		return std::make_unique<marshall>(owned_by_first_player, starting_position);
+	}
 };
 
 
 class champion : public figure {
 public:
-	champion(int x_, int y_, bool first_player) {
+	champion(bool first_player) {
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "Champion";
+	}
+
+	champion(bool first_player, bool starting_position_) {
+		starting_position = starting_position_;
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "Champion";
+	}
+
+	void set_moves() {
 		starting_moves[2][1] = walk;
 		starting_moves[1][2] = walk;
 		starting_moves[2][3] = walk;
@@ -487,11 +707,8 @@ public:
 
 		other_moves[1][2] = shoot;
 		other_moves[2][1] = shoot;
-		other_moves[4][2] =	shoot;
+		other_moves[4][2] = shoot;
 		other_moves[2][4] = shoot;
-
-		owned_by_first_player = first_player;
-		name = "Champion";
 	}
 
 	std::string return_symbol() {
@@ -500,11 +717,31 @@ public:
 		}
 		return "C2";
 	}
+
+	std::unique_ptr<figure> clone() override {
+		return std::make_unique<champion>(owned_by_first_player, starting_position);
+	}
 };
 
 class general : public figure {
 public:
-	general(int x_, int y_, bool first_player) {
+	general(bool first_player) {
+		set_moves();
+
+		owned_by_first_player = first_player;
+		
+		name = "General";
+	}
+
+	general(bool first_player, bool starting_position_) {
+		starting_position = starting_position_;
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "General";
+	}
+
+	void set_moves() {
 		starting_moves[2][1] = walk;
 		starting_moves[0][2] = walk;
 		starting_moves[3][2] = walk;
@@ -527,13 +764,11 @@ public:
 		other_moves[2][3] = command;
 		other_moves[3][3] = command;
 
-		owned_by_first_player = first_player;
-		command_squares_other.push_back(coordinates(1, 2)); 
+		command_squares_other.push_back(coordinates(1, 2));
 		command_squares_other.push_back(coordinates(1, 3));
 		command_squares_other.push_back(coordinates(2, 3));
 		command_squares_other.push_back(coordinates(3, 3));
 		command_squares_other.push_back(coordinates(3, 2));
-		name = "General";
 	}
 
 	std::string return_symbol() {
@@ -542,11 +777,31 @@ public:
 		}
 		return "G2";
 	}
+
+	std::unique_ptr<figure> clone() override {
+		return std::make_unique<general>(owned_by_first_player, starting_position);
+	}
 };
 
 class longbowman : public figure {
 public:
-	longbowman(int x_, int y_, bool first_player) {
+	longbowman(bool first_player) {
+		set_moves();
+
+		owned_by_first_player = first_player;
+		position_on_move_board = coordinates(2, 3);
+		name = "Longbowman";
+	}
+
+	longbowman(bool first_player, bool starting_position_) {
+		starting_position = starting_position_;
+		set_moves();
+
+		owned_by_first_player = first_player;
+		name = "Longbowman";
+	}
+
+	void set_moves() {
 		starting_moves[2][2] = walk;
 		starting_moves[1][3] = walk;
 		starting_moves[2][4] = walk;
@@ -557,10 +812,6 @@ public:
 
 		other_moves[1][4] = walk;
 		other_moves[3][4] = walk;
-
-		owned_by_first_player = first_player;
-		position_on_move_board = coordinates(2, 3);
-		name = "Longbowman";
 	}
 
 	std::string return_symbol() {
@@ -568,5 +819,9 @@ public:
 			return "L1";
 		}
 		return "L2";
+	}
+
+	std::unique_ptr<figure> clone() override {
+		return std::make_unique<longbowman>(owned_by_first_player, starting_position);
 	}
 };
