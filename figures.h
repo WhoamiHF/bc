@@ -145,13 +145,7 @@ public:
 		name = "Duke";
 	}
 
-	void set_moves() {
-		starting_moves[1][2] = slide;
-		starting_moves[3][2] = slide;
-
-		other_moves[2][1] = slide;
-		other_moves[2][3] = slide;
-	}
+	void set_moves();
 
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -182,18 +176,7 @@ public:
 		name = "Pikeman";
 	}
 
-	void set_moves() {
-		starting_moves[0][0] = walk;
-		starting_moves[1][1] = walk;
-		starting_moves[3][1] = walk;
-		starting_moves[4][0] = walk;
-
-		other_moves[1][0] = shoot;
-		other_moves[3][0] = shoot;
-		other_moves[2][1] = walk;
-		other_moves[2][3] = walk;
-		other_moves[2][4] = walk;
-	}
+	void set_moves();
 
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -224,27 +207,7 @@ public:
 		name = "Seer";
 	}
 
-	void set_moves() {
-		starting_moves[2][0] = jump;
-		starting_moves[0][2] = jump;
-		starting_moves[4][2] = jump;
-		starting_moves[2][4] = jump;
-
-		starting_moves[1][1] = walk;
-		starting_moves[1][3] = walk;
-		starting_moves[3][1] = walk;
-		starting_moves[3][3] = walk;
-
-		other_moves[0][0] = jump;
-		other_moves[4][0] = jump;
-		other_moves[0][4] = jump;
-		other_moves[4][4] = jump;
-
-		other_moves[2][1] = walk;
-		other_moves[1][2] = walk;
-		other_moves[3][2] = walk;
-		other_moves[2][3] = walk;
-	}
+	void set_moves();
 	std::string return_symbol() {
 		if (owned_by_first_player) {
 			return "S1";
@@ -274,21 +237,7 @@ public:
 		name = "Ranger";
 	}
 
-	void set_moves() {
-		starting_moves[2][1] = slide;
-		starting_moves[2][3] = slide;
-
-		starting_moves[0][1] = jump;
-		starting_moves[1][0] = jump;
-		starting_moves[3][0] = jump;
-		starting_moves[4][1] = jump;
-
-		other_moves[1][1] = slide;
-		other_moves[3][1] = slide;
-
-		other_moves[1][4] = jump;
-		other_moves[3][4] = jump;
-	}
+	void set_moves();
 	std::string return_symbol() {
 		if (owned_by_first_player) {
 			return "R1";
@@ -318,22 +267,7 @@ public:
 		owned_by_first_player = first_player;
 		name = "Knight";
 	}
-	void set_moves() {
-		starting_moves[1][0] = jump;
-		starting_moves[3][0] = jump;
-
-		starting_moves[1][2] = walk;
-		starting_moves[3][2] = walk;
-		starting_moves[2][3] = walk;
-		starting_moves[2][4] = walk;
-
-		other_moves[2][1] = slide;
-
-		other_moves[1][3] = walk;
-		other_moves[0][4] = walk;
-		other_moves[3][3] = walk;
-		other_moves[4][4] = walk;
-	}
+	void set_moves();
 	std::string return_symbol() {
 		if (owned_by_first_player) {
 			return "K1";
@@ -363,22 +297,7 @@ public:
 		name = "Bowman";
 	}
 
-	void set_moves() {
-		starting_moves[2][1] = walk;
-		starting_moves[1][2] = walk;
-		starting_moves[3][2] = walk;
-
-		starting_moves[0][2] = jump;
-		starting_moves[4][2] = jump;
-		starting_moves[2][4] = jump;
-
-		other_moves[1][1] = shoot;
-		other_moves[3][1] = shoot;
-		other_moves[2][0] = shoot;
-
-		other_moves[1][3] = walk;
-		other_moves[3][3] = walk;
-	}
+	void set_moves();
 
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -410,23 +329,7 @@ public:
 		name = "Dragoon";
 	}
 
-	void set_moves() {
-		starting_moves[0][0] = shoot;
-		starting_moves[2][0] = shoot;
-		starting_moves[4][0] = shoot;
-
-		starting_moves[1][2] = walk;
-		starting_moves[3][2] = walk;
-
-		other_moves[1][3] = slide;
-		other_moves[3][3] = slide;
-
-		other_moves[1][0] = jump;
-		other_moves[3][0] = jump;
-
-		other_moves[2][0] = walk;
-		other_moves[2][1] = walk;
-	}
+	void set_moves();
 	std::string return_symbol() {
 		if (owned_by_first_player) {
 			return "X1";
@@ -457,18 +360,8 @@ public:
 		name = "Footman";
 	}
 
-	void set_moves() {
-		other_moves[2][0] = walk;
-		other_moves[1][1] = walk;
-		other_moves[3][1] = walk;
-		other_moves[1][3] = walk;
-		other_moves[3][3] = walk;
+	void set_moves();
 
-		starting_moves[2][1] = walk;
-		starting_moves[1][2] = walk;
-		starting_moves[2][3] = walk;
-		starting_moves[3][2] = walk;
-	}
 	std::string return_symbol() {
 		if (owned_by_first_player) {
 			return "F1";
@@ -499,15 +392,8 @@ public:
 		name = "Assassin";
 	}
 
-	void set_moves() {
-		starting_moves[2][0] = jump_and_slide;
-		starting_moves[0][4] = jump_and_slide;
-		starting_moves[4][4] = jump_and_slide;
+	void set_moves();
 
-		other_moves[0][0] = jump_and_slide;
-		other_moves[4][0] = jump_and_slide;
-		other_moves[2][4] = jump_and_slide;
-	}
 	std::string return_symbol() {
 		if (owned_by_first_player) {
 			return "A1";
@@ -538,22 +424,7 @@ public:
 		name = "Priest";
 	}
 
-	void set_moves() {
-		starting_moves[1][1] = slide;
-		starting_moves[3][1] = slide;
-		starting_moves[1][3] = slide;
-		starting_moves[3][3] = slide;
-
-		other_moves[1][1] = walk;
-		other_moves[3][1] = walk;
-		other_moves[1][3] = walk;
-		other_moves[3][3] = walk;
-
-		other_moves[0][0] = jump;
-		other_moves[4][0] = jump;
-		other_moves[0][4] = jump;
-		other_moves[4][4] = jump;
-	}
+	void set_moves();
 
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -584,25 +455,7 @@ public:
 		name = "Wizard";
 	}
 
-	void set_moves() {
-		starting_moves[1][1] = walk;
-		starting_moves[2][1] = walk;
-		starting_moves[3][1] = walk;
-		starting_moves[1][2] = walk;
-		starting_moves[1][3] = walk;
-		starting_moves[2][3] = walk;
-		starting_moves[3][3] = walk;
-		starting_moves[3][2] = walk;
-
-		other_moves[0][0] = jump;
-		other_moves[2][0] = jump;
-		other_moves[4][0] = jump;
-		other_moves[0][2] = jump;
-		other_moves[0][4] = jump;
-		other_moves[2][4] = jump;
-		other_moves[4][4] = jump;
-		other_moves[4][2] = jump;
-	}
+	void set_moves();
 
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -635,29 +488,7 @@ public:
 		name = "Marshall";
 	}
 
-	void set_moves() {
-		starting_moves[0][0] = jump;
-		starting_moves[4][0] = jump;
-		starting_moves[2][4] = jump;
-
-		starting_moves[1][2] = slide;
-		starting_moves[3][2] = slide;
-
-		other_moves[1][1] = walk_or_command;
-		other_moves[2][1] = walk_or_command;
-		other_moves[3][1] = walk_or_command;
-
-		other_moves[1][2] = walk;
-		other_moves[1][3] = walk;
-		other_moves[0][2] = walk;
-		other_moves[3][3] = walk;
-		other_moves[3][2] = walk;
-		other_moves[4][2] = walk;
-
-		command_squares_other.push_back(coordinates(1, 1));
-		command_squares_other.push_back(coordinates(2, 1));
-		command_squares_other.push_back(coordinates(3, 1));
-	}
+	void set_moves();
 
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -689,27 +520,7 @@ public:
 		name = "Champion";
 	}
 
-	void set_moves() {
-		starting_moves[2][1] = walk;
-		starting_moves[1][2] = walk;
-		starting_moves[2][3] = walk;
-		starting_moves[3][2] = walk;
-
-		starting_moves[2][0] = jump;
-		starting_moves[0][2] = jump;
-		starting_moves[4][2] = jump;
-		starting_moves[2][4] = jump;
-
-		other_moves[2][0] = jump;
-		other_moves[2][4] = jump;
-		other_moves[4][2] = jump;
-		other_moves[0][2] = jump;
-
-		other_moves[1][2] = shoot;
-		other_moves[2][1] = shoot;
-		other_moves[4][2] = shoot;
-		other_moves[2][4] = shoot;
-	}
+	void set_moves();
 
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -741,35 +552,7 @@ public:
 		name = "General";
 	}
 
-	void set_moves() {
-		starting_moves[2][1] = walk;
-		starting_moves[0][2] = walk;
-		starting_moves[3][2] = walk;
-		starting_moves[2][3] = walk;
-
-		starting_moves[1][0] = jump;
-		starting_moves[3][0] = jump;
-
-		other_moves[1][0] = jump;
-		other_moves[3][0] = jump;
-
-		other_moves[2][1] = walk;
-		other_moves[0][2] = walk;
-		other_moves[4][2] = walk;
-
-		other_moves[1][2] = walk_or_command;
-		other_moves[3][2] = walk_or_command;
-
-		other_moves[1][3] = command;
-		other_moves[2][3] = command;
-		other_moves[3][3] = command;
-
-		command_squares_other.push_back(coordinates(1, 2));
-		command_squares_other.push_back(coordinates(1, 3));
-		command_squares_other.push_back(coordinates(2, 3));
-		command_squares_other.push_back(coordinates(3, 3));
-		command_squares_other.push_back(coordinates(3, 2));
-	}
+	void set_moves();
 
 	std::string return_symbol() {
 		if (owned_by_first_player) {
@@ -801,18 +584,7 @@ public:
 		name = "Longbowman";
 	}
 
-	void set_moves() {
-		starting_moves[2][2] = walk;
-		starting_moves[1][3] = walk;
-		starting_moves[2][4] = walk;
-		starting_moves[3][3] = walk;
-
-		other_moves[2][0] = shoot;
-		other_moves[2][1] = shoot;
-
-		other_moves[1][4] = walk;
-		other_moves[3][4] = walk;
-	}
+	void set_moves();
 
 	std::string return_symbol() {
 		if (owned_by_first_player) {
