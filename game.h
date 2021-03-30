@@ -8,7 +8,8 @@
 #include <unordered_set>
 #include <unordered_map>
 
-#define DEPTH 2
+#define DEPTH 4
+#define PART 2
 
 class player;
 
@@ -28,6 +29,7 @@ public:
 	operation op;
 };
 
+
 class evaluation_depth_and_move {
 public:
 	evaluation_depth_and_move(double eval, possible_move move_, int depth_) {
@@ -38,6 +40,16 @@ public:
 	double evaluation;
 	possible_move move;
 	int depth;
+};
+
+class evaluation_and_move {
+public:
+	evaluation_and_move(double eval, possible_move move_) {
+		evaluation = eval;
+		move = move_;
+	}
+	double evaluation;
+	possible_move move;
 };
 
 typedef std::unordered_map<std::string, evaluation_depth_and_move> considered_states_t;
@@ -58,7 +70,7 @@ public:
 		second_player = player(false, true);
 		gameover = false; //@todo game_states enum?
 		//winning_states = std::unordered_set<std::string>();
-		previous_hash = "start";
+		//previous_hash = "start";
 	}
 
 	game(const game& t) {
@@ -89,9 +101,11 @@ public:
 	bool move_troop(coordinates from, coordinates to);
 
 	void play();
+	void collect_all_possible_moves(std::vector<possible_move>& moves);
 
 	std::unique_ptr<figure> board[6][6];
 private:
+	evaluation_and_move minimax(int depth, bool maximize, double alpha, double beta);
 	void place_starting_troops();
 	void user_add_footman();
 	void user_add_duke();
@@ -107,14 +121,12 @@ private:
 
 
 	void computer_play(considered_states_t& states);
-
-	void collect_all_possible_moves(std::vector<possible_move>& moves);
-	void collect_additions(int x, int y, std::vector<possible_move>& possible_moves);
+	void collect_addition(int x, int y, std::vector<coordinates>& squares);
 	void collect_commands(int x, int y, std::vector<possible_move>& possible_moves);
 
-	double evaluate_state();
-	double evaluate_all_possible_moves(int depth, considered_states_t& states);
-	double evaluate_move(possible_move move, int depth, considered_states_t& states);
+	double evaluate_state(bool maximize);
+	//double evaluate_all_possible_moves(int depth, considered_states_t& states);
+	evaluation_and_move evaluate_move(possible_move move, int depth, bool maximize, double alpha, double beta);
 	std::string create_hash();
 	void append_active_to_hash(bool first, std::string& hash);
 	void append_passive_to_hash(bool first, std::string& hash);
@@ -140,7 +152,7 @@ private:
 	player first_player;
 	player second_player;
 	bool gameover;
-	std::string previous_hash;
+	//std::string previous_hash;
 	//bool can_the_duke_be_taken();
 	/*void mark_winning_state();
 	void mark_losing_state();

@@ -214,8 +214,8 @@ void champion::set_moves() {
 
 	other_moves[1][2] = shoot;
 	other_moves[2][1] = shoot;
-	other_moves[4][2] = shoot;
-	other_moves[2][4] = shoot;
+	other_moves[3][2] = shoot;
+	other_moves[2][3] = shoot;
 }
 
 void general::set_moves() {
