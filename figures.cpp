@@ -91,6 +91,7 @@ void bowman::set_moves() {
 	other_moves[2][0] = shoot;
 
 	other_moves[1][3] = walk;
+	other_moves[2][1] = walk;
 	other_moves[3][3] = walk;
 }
 

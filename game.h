@@ -53,10 +53,12 @@ public:
 };
 
 typedef std::unordered_map<std::string, evaluation_depth_and_move> considered_states_t;
+typedef std::vector< std::vector<std::vector<coordinates>>> single_troop_sheet_t;
+typedef std::map<troop_name, single_troop_sheet_t> all_troops_sheet_t;
 
 class game {
 public:
-	game() {
+	game(all_troops_sheet_t* _sheet_odd,all_troops_sheet_t* _sheet_even) {
 		first_player_plays = true;
 		for (size_t i = 0; i < 6; i++)
 		{
@@ -69,8 +71,8 @@ public:
 		first_player = player(true, true);
 		second_player = player(false, true);
 		gameover = false; //@todo game_states enum?
-		//winning_states = std::unordered_set<std::string>();
-		//previous_hash = "start";
+		sheet_even = _sheet_even;
+		sheet_odd = _sheet_odd;
 	}
 
 	game(const game& t) {
@@ -90,8 +92,10 @@ public:
 		this->first_player = t.first_player;
 		this->second_player = t.second_player;
 		this->first_player_plays = t.first_player_plays;
+		this->sheet_even = t.sheet_even;
+		this->sheet_odd = t.sheet_odd;
 	}
-	bool add_new_figure(coordinates to, troop_name name_of_troop);
+	bool add_new_figure(coordinates to, troop_name name_of_troop,bool anywhere);
 
 	bool first_player_plays; //@todo: private
 
@@ -104,6 +108,7 @@ public:
 	void collect_all_possible_moves(std::vector<possible_move>& moves);
 
 	std::unique_ptr<figure> board[6][6];
+	void prepare_possible_moves(all_troops_sheet_t& sheet_odd, all_troops_sheet_t& sheet_even);
 private:
 	evaluation_and_move minimax(int depth, bool maximize, double alpha, double beta);
 	void place_starting_troops();
@@ -133,7 +138,7 @@ private:
 
 	void play_specific_move(possible_move move);
 	bool command_troop(coordinates base, coordinates from, coordinates to);
-	types_of_moves get_move(coordinates from, coordinates to);
+	types_of_moves get_move(coordinates from, coordinates to,bool shoot_anywhere);
 	bool remove_figure(int x, int y);
 
 	directions get_directions(coordinates difference);
@@ -148,10 +153,12 @@ private:
 	bool is_there_duke(int x, int y);
 
 	bool belongs_to_current_player(int x, int y);
-
+	
 	player first_player;
 	player second_player;
 	bool gameover;
+	all_troops_sheet_t* sheet_odd;
+	all_troops_sheet_t* sheet_even;
 	//std::string previous_hash;
 	//bool can_the_duke_be_taken();
 	/*void mark_winning_state();
@@ -165,4 +172,17 @@ private:
 	first_player = first;
 	second_player = second;
 	}*/
+};
+
+class precomputed {
+public:
+	precomputed(){
+		sheet_even = all_troops_sheet_t();
+		sheet_odd = all_troops_sheet_t();
+
+		game tmp = game(&sheet_odd, &sheet_even);
+		tmp.prepare_possible_moves(sheet_odd,sheet_even);
+	}
+	all_troops_sheet_t sheet_odd;
+	all_troops_sheet_t sheet_even;
 };

@@ -23,13 +23,14 @@ void print_all_possible_moves(std::vector<possible_move> possible_moves) {
 /* Tests command, slide and walk, all with and without obstacles
 */
 void test_1() {
-	game gameLogic;
-	gameLogic.add_new_figure(coordinates(1, 1), Duke);
-	gameLogic.add_new_figure(coordinates(1, 0), Marshall);
+	precomputed moves = precomputed();
+	game gameLogic = game(&moves.sheet_odd, &moves.sheet_even);
+	gameLogic.add_new_figure(coordinates(1, 1), Duke,false);
+	gameLogic.add_new_figure(coordinates(1, 0), Marshall,false);
 	gameLogic.move_troop(coordinates(1, 0), coordinates(2, 0));
 	gameLogic.first_player_plays = false;
-	gameLogic.add_new_figure(coordinates(3, 1), Duke);
-	gameLogic.add_new_figure(coordinates(2, 1), Pikeman);
+	gameLogic.add_new_figure(coordinates(3, 1), Duke,false);
+	gameLogic.add_new_figure(coordinates(2, 1), Pikeman,false);
 	gameLogic.first_player_plays = true;
 	gameLogic.print_board();
 	std::vector<possible_move> possible_moves = std::vector<possible_move>();
@@ -39,12 +40,13 @@ void test_1() {
 
 /* test same thing as test_1 and shoot with and without target*/
 void test_2() {
-	game gameLogic;
-	gameLogic.add_new_figure(coordinates(3, 0), Duke);
+	precomputed moves = precomputed();
+	game gameLogic = game(&moves.sheet_odd, &moves.sheet_even);
+	gameLogic.add_new_figure(coordinates(3, 0), Duke,false);
 	gameLogic.first_player_plays = false;
-	gameLogic.add_new_figure(coordinates(2, 3), Duke);
-	gameLogic.add_new_figure(coordinates(3, 3), Longbowman);
-	gameLogic.add_new_figure(coordinates(2, 4), Marshall);
+	gameLogic.add_new_figure(coordinates(2, 3), Duke,false);
+	gameLogic.add_new_figure(coordinates(3, 3), Longbowman,false);
+	gameLogic.add_new_figure(coordinates(2, 4), Marshall,false);
 	gameLogic.board[2][4]->starting_position = false;
 	gameLogic.board[3][3]->starting_position = false;
 	gameLogic.print_board();
@@ -56,15 +58,16 @@ void test_2() {
 
 /* Tests jump, jump and slide*/
 void test_3() {
-	game gameLogic;
+	precomputed moves = precomputed();
+	game gameLogic = game(&moves.sheet_odd,&moves.sheet_even);
 	gameLogic.first_player_plays = false;
-	gameLogic.add_new_figure(coordinates(1, 2), Duke);
-	gameLogic.add_new_figure(coordinates(1, 3), Footman);
+	gameLogic.add_new_figure(coordinates(1, 2), Duke,false);
+	gameLogic.add_new_figure(coordinates(1, 3), Footman,false);
 	gameLogic.move_troop(coordinates(1, 3), coordinates(1, 4));
 	gameLogic.first_player_plays = true;
-	gameLogic.add_new_figure(coordinates(2, 2), Duke);
-	gameLogic.add_new_figure(coordinates(3, 2), General);
-	gameLogic.add_new_figure(coordinates(2, 3), Assassin);
+	gameLogic.add_new_figure(coordinates(2, 2), Duke,false);
+	gameLogic.add_new_figure(coordinates(3, 2), General,false);
+	gameLogic.add_new_figure(coordinates(2, 3), Assassin,false);
 	gameLogic.board[2][2]->starting_position = false;
 	gameLogic.board[2][3]->starting_position = false;
 	gameLogic.board[3][2]->starting_position = false;
@@ -84,7 +87,8 @@ int main()
 	//test_1();
 	//test_2();
 	//test_3();
-	game gameLogic;
+	precomputed moves = precomputed();
+	game gameLogic = game(&moves.sheet_odd,&moves.sheet_even);
 	gameLogic.play();
 	//gameLogic.create_hash();
 	//gameLogic.mark_winning_state();
