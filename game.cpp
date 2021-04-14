@@ -299,7 +299,7 @@ bool game::belongs_to_current_player(int x, int y) {
 /*checks if given square contains friendly Duke
 */
 bool game::is_there_duke(int x, int y) {
-	if (coordinates_on_board(x, y) && board[x][y] != NULL && board[x][y]->name == "Duke" && belongs_to_current_player(x, y)) {
+	if (coordinates_on_board(x, y) && board[x][y] != NULL && board[x][y]->name == Duke && belongs_to_current_player(x, y)) {
 		return true;
 	}
 	return false;
@@ -392,17 +392,18 @@ bool game::add_new_figure(coordinates to, troop_name name_of_troop, bool anywher
 /* main function for moving troop. Gets which move can be done and does it.
 * does not change current player
 */
-bool game::move_troop(coordinates from, coordinates to) {
+types_of_moves game::move_troop(coordinates from, coordinates to) {
 	auto move = get_move(from, to, false);
 	switch (move) {
 	case nothing:
 		//std::cout << "Move from [" << from.x << "," << from.y << "] to [" << to.x << "," << to.y << "] was not succesful" << std::endl;
-		return false;
+		return nothing;
 		break;
 	case shoot:
 		//std::cout << "Succesful shoot from [" << from.x << "," << from.y << "] to [" << to.x << "," << to.y << "]" << std::endl;
 		remove_figure(to.x, to.y);
 		board[from.x][from.y]->starting_position = !board[from.x][from.y]->starting_position; //troop stays on same position, but changes moves
+		return shoot;
 		break;
 	default:
 		//std::cout << "Succesful move from [" << from.x << "," << from.y << "] to [" << to.x << "," << to.y << "]" << std::endl;
@@ -417,9 +418,9 @@ bool game::move_troop(coordinates from, coordinates to) {
 			second_player.change_coordinates(from.x, from.y, to.x, to.y);
 		}
 		board[to.x][to.y]->starting_position = !board[to.x][to.y]->starting_position; //troop has moved
+		return move;
 		break;
 	}
-	return true;
 }
 
 /* checks if coordinates are on the board and removes troop on this square from the board and from player's active pack
@@ -429,7 +430,7 @@ bool game::remove_figure(int x, int y) {
 	if (!coordinates_on_board(x, y) || board[x][y] == NULL) {
 		return false;
 	}
-	if (board[x][y]->name == "Duke") {
+	if (board[x][y]->name == Duke) {
 		gameover = true;
 	}
 	if (board[x][y]->owned_by_first_player) {
@@ -486,7 +487,7 @@ bool game::user_play() {
 		tx = get_safely_next_number(s);
 		ty = get_safely_next_number(s);
 		if (coordinates_on_board(fx, fy) && coordinates_on_board(tx, ty)) {
-			return move_troop(coordinates(fx, fy), coordinates(tx, ty));
+			return move_troop(coordinates(fx, fy), coordinates(tx, ty)) != nothing;
 		}
 		else {
 			return false;
@@ -644,38 +645,105 @@ evaluation_and_move game::minimax(int depth, bool maximize, double alpha, double
 
 
 evaluation_and_move game::evaluate_move(possible_move move, int depth, bool maximize, double alpha, double beta) {
-
 	switch (move.op) {
 	case move_it:
 	{
-
-		game tmp = *this;
 		coordinates from = move.coords[0];
 		coordinates to = move.coords[1];
 		//remember 
-			//what was on to square
-			//from 
-			//to 
-		tmp.move_troop(from, to);
-		tmp.first_player_plays = !first_player_plays;
-		auto return_value = tmp.minimax(depth, !maximize, alpha, beta);
-		//undo 
+		std::unique_ptr<figure> figure_on_board = NULL;
+		if (board[to.x][to.y] != NULL) {
+			figure_on_board = board[to.x][to.y]->clone();
+		}
+
+		types_of_moves move = move_troop(from, to);
+		if (move == nothing) {
+			move_troop(from, to);
+		}
+		first_player_plays = !first_player_plays;
+		auto return_value = minimax(depth, !maximize, alpha, beta);
+
+
+		//undo
+		gameover = false;
+		first_player_plays = !first_player_plays;
+		if (move != shoot) {
+			board[from.x][from.y] = board[to.x][to.y]->clone();
+		}
+		board[from.x][from.y]->starting_position = !board[from.x][from.y]->starting_position;
+
+		if (figure_on_board == NULL) {
+			board[to.x][to.y] = NULL;
+		}
+		else{
+			board[to.x][to.y] = figure_on_board->clone();
+
+			if (first_player_plays) {
+				second_player.packs.active.push_back(troop(to.x, to.y, figure_on_board->name));
+			}
+			else {
+				first_player.packs.active.push_back(troop(to.x, to.y, figure_on_board->name));
+			}
+		}
+
 			//return figures on board
+		if (first_player_plays) {
+			first_player.change_coordinates(to.x, to.y, from.x, from.y);
+		}
+		else {
+			second_player.change_coordinates(to.x, to.y, from.x, from.y);
+		}
 			//maybe return enemy troop to the collection on correct spot - not necessary because no hash?
 			//change coords of friendly troop
-			//first_player_plays = !first_player_plays;
 		return return_value;
 		break;
 	}
 	case command_it:
 	{
-		game tmp = *this;
 		coordinates base = move.coords[0];
 		coordinates from = move.coords[1];
 		coordinates to = move.coords[2];
-		tmp.command_troop(base, from, to);
-		tmp.first_player_plays = !first_player_plays;
-		return tmp.minimax(depth, !maximize, alpha, beta);
+
+		std::unique_ptr<figure> figure_on_board = NULL;
+		if (board[to.x][to.y] != NULL) {
+			figure_on_board = board[to.x][to.y]->clone();
+		}
+
+		command_troop(base, from, to);
+		first_player_plays = !first_player_plays;
+		auto return_value = minimax(depth, !maximize, alpha, beta);
+
+		//undo
+		gameover = false;
+		first_player_plays = !first_player_plays;
+		board[from.x][from.y] = board[to.x][to.y]->clone();
+
+		if (figure_on_board == NULL) {
+			board[to.x][to.y] = NULL;
+		}
+		else {
+			board[to.x][to.y] = figure_on_board->clone();
+
+			if (first_player_plays) {
+				second_player.packs.active.push_back(troop(to.x, to.y, figure_on_board->name));
+			}
+			else {
+				first_player.packs.active.push_back(troop(to.x, to.y, figure_on_board->name));
+			}
+		}
+
+		//return figures on board
+		if (first_player_plays) {
+			first_player.change_coordinates(to.x, to.y, from.x, from.y);
+		}
+		else {
+			second_player.change_coordinates(to.x, to.y, from.x, from.y);
+		}
+
+		board[base.x][base.y]->starting_position = !board[base.x][base.y]->starting_position;
+		return return_value;
+		break;
+
 	}
 	case add_it:
 	{
@@ -699,20 +767,53 @@ evaluation_and_move game::evaluate_move(possible_move move, int depth, bool maxi
 
 
 		for (auto& index : indices) {
+			troop_name name = collection->at(index);
 			double best = 1000;
 			if (maximize) {
 				best = -1000;
 			}
 
 			for (auto& to : move.coords) {
-				game tmp = *this;
-				tmp.add_new_figure(to, collection->at(index), false);
+				add_new_figure(to,name, false);
 
-				tmp.first_player_plays = !first_player_plays;
-				double eval = tmp.minimax(depth, !maximize, alpha, beta).evaluation;
+				first_player_plays = !first_player_plays;
+				double eval = minimax(depth, !maximize, alpha, beta).evaluation;
+
 				if ((maximize && eval > best) || (!maximize && eval < best)) {
 					best = eval;
 				}
+
+				//undo
+				gameover = false;
+				first_player_plays = !first_player_plays;
+				board[to.x][to.y] = NULL;
+
+
+				if (first_player_plays) {
+					first_player.packs.backup.push_back(name);
+					
+					size_t index = 0;
+					for (auto& item : first_player.packs.active) {
+						if (item.name == name && item.x == to.x && item.y == to.y) {
+							break;
+						}
+						index++;
+					}
+					first_player.packs.active.erase(first_player.packs.active.begin()+index); //@todo: smarter
+				}
+				else {
+					size_t index = 0;
+					for (auto& item : second_player.packs.active) {
+						if (item.name == name && item.x == to.x && item.y == to.y) {
+							break;
+						}
+						index++;
+					}
+					second_player.packs.backup.push_back(name);
+					second_player.packs.active.erase(second_player.packs.active.begin() + index); //@todo: smarter
+				}
+				
+
 			}
 			sum += best;
 
@@ -792,7 +893,7 @@ void game::play() {
 		print_board();
 		print_packs();
 
-		std::cout << "First player's turn" << std::endl;
+		std::cout << rounds << ". First player's turn" << std::endl;
 		first_player_plays = true;
 
 		if (first_player.played_by_pc) {
@@ -802,7 +903,7 @@ void game::play() {
 			while (!user_play()) {}
 		}
 
-		first_player.sort_active_pack(); //@todo: sort during thinking
+		//first_player.sort_active_pack(); //@todo: sort during thinking
 
 		print_board();
 		print_packs();
@@ -811,7 +912,7 @@ void game::play() {
 			break;
 		}
 
-		std::cout << "Second player's turn" << std::endl;
+		std::cout << rounds << ". Second player's turn" << std::endl;
 		first_player_plays = false;
 
 		if (second_player.played_by_pc) {
@@ -826,7 +927,7 @@ void game::play() {
 			std::cout << "player two won!" << std::endl;
 			break;
 		}
-		second_player.sort_active_pack();
+		//second_player.sort_active_pack();
 	}
 	auto end = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);

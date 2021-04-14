@@ -81,12 +81,39 @@ void test_3() {
 	//std::cout << "eval:" << gameLogic.evaluate_move(possible_move(tmp, add_it),3);
 }
 
+void test_4() {
+	precomputed moves = precomputed();
+	game gameLogic = game(&moves.sheet_odd, &moves.sheet_even);
+	gameLogic.first_player_plays = true;
+	gameLogic.add_new_figure(coordinates(2, 0), Duke, false);
+	gameLogic.add_new_figure(coordinates(3, 0), Footman, true);
+	gameLogic.add_new_figure(coordinates(1, 0), Footman, true);
+
+	gameLogic.add_new_figure(coordinates(2, 1), Champion, true);
+	gameLogic.board[2][1]->starting_position = !gameLogic.board[2][1]->starting_position;
+
+	gameLogic.first_player_plays = false;
+	gameLogic.add_new_figure(coordinates(2, 5), Duke, false);
+	gameLogic.add_new_figure(coordinates(1, 5), Footman, true);
+	gameLogic.add_new_figure(coordinates(3, 5), Footman, false);
+	gameLogic.add_new_figure(coordinates(2, 4), Ranger, true);
+	gameLogic.first_player_plays = true;
+	gameLogic.move_troop(coordinates(2, 1), coordinates(0, 1));
+	gameLogic.print_board();
+	gameLogic.print_packs();
+
+	std::vector<possible_move> possible_moves = std::vector<possible_move>();
+	gameLogic.collect_all_possible_moves(possible_moves);
+	print_all_possible_moves(possible_moves);
+}
+
 int main()
 {
 	srand(time(NULL));
 	//test_1();
 	//test_2();
 	//test_3();
+	//test_4();
 	precomputed moves = precomputed();
 	game gameLogic = game(&moves.sheet_odd,&moves.sheet_even);
 	gameLogic.play();

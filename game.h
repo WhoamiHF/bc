@@ -9,7 +9,7 @@
 #include <unordered_map>
 
 #define DEPTH 4
-#define PART 2
+#define PART 4
 
 class player;
 
@@ -102,7 +102,7 @@ public:
 	void print_board();
 	void print_packs();
 
-	bool move_troop(coordinates from, coordinates to);
+	types_of_moves move_troop(coordinates from, coordinates to);
 
 	void play();
 	void collect_all_possible_moves(std::vector<possible_move>& moves);
@@ -110,6 +110,7 @@ public:
 	std::unique_ptr<figure> board[6][6];
 	void prepare_possible_moves(all_troops_sheet_t& sheet_odd, all_troops_sheet_t& sheet_even);
 private:
+	void undo();
 	evaluation_and_move minimax(int depth, bool maximize, double alpha, double beta);
 	void place_starting_troops();
 	void user_add_footman();

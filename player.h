@@ -11,6 +11,7 @@ public:
 		y = y_;
 		name = name_;
 	}
+
 	int x;
 	int y;
 	troop_name name;
@@ -35,6 +36,7 @@ private:
 
 class player {
 public:
+	//friend game;
 	player() = default;
 	player(bool _first_player, bool played_by_pc_) {
 		first_player = _first_player;

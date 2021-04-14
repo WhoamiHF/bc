@@ -4,6 +4,7 @@
 #include <memory>
 #include <set> //possibly redundant
 #include <vector>
+#include "player.h"
 
 enum types_of_moves { nothing, walk, slide, jump_and_slide, shoot, jump,command,walk_or_command };
 
@@ -40,7 +41,7 @@ public:
 			command_squares_starting = std::vector<coordinates>();
 			command_squares_other = std::vector<coordinates>();
 			position_on_move_board = coordinates(2, 2);
-			name = "";
+			name = Duke;
 			starting_position = true;
 		}
 	}
@@ -60,7 +61,7 @@ public:
 	int position_x;
 	int position_y;
 	bool owned_by_first_player;
-	std::string name;
+	troop_name name;
 
 	void print_boards() {
 		std::cout << "current" << std::endl;
@@ -134,7 +135,7 @@ public:
 		set_moves();
 
 		owned_by_first_player = first_player;
-		name = "Duke";
+		name = Duke;
 	}
 
 	duke(bool first_player,bool starting_position_) {
@@ -142,7 +143,7 @@ public:
 		set_moves();		
 
 		owned_by_first_player = first_player;
-		name = "Duke";
+		name = Duke;
 	}
 
 	void set_moves();
@@ -165,7 +166,7 @@ public:
 		set_moves();
 
 		owned_by_first_player = first_player;
-		name = "Pikeman";
+		name = Pikeman;
 	}
 
 	pikeman(bool first_player,bool starting_position_) {
@@ -173,7 +174,7 @@ public:
 		set_moves();
 		
 		owned_by_first_player = first_player;
-		name = "Pikeman";
+		name = Pikeman;
 	}
 
 	void set_moves();
@@ -196,7 +197,7 @@ public:
 		set_moves();
 
 		owned_by_first_player = first_player;
-		name = "Seer";
+		name = Seer;
 	}
 
 	seer(bool first_player, bool starting_position_) {
@@ -204,7 +205,7 @@ public:
 		set_moves();
 
 		owned_by_first_player = first_player;
-		name = "Seer";
+		name = Seer;
 	}
 
 	void set_moves();
@@ -226,7 +227,7 @@ public:
 		set_moves();
 
 		owned_by_first_player = first_player;
-		name = "Ranger";
+		name = Ranger;
 	}
 
 	ranger(bool first_player, bool starting_position_) {
@@ -234,7 +235,7 @@ public:
 		set_moves();
 
 		owned_by_first_player = first_player;
-		name = "Ranger";
+		name = Ranger;
 	}
 
 	void set_moves();
@@ -257,7 +258,7 @@ public:
 		set_moves();
 
 		owned_by_first_player = first_player;
-		name = "Knight";
+		name = Knight;
 	}
 
 	knight(bool first_player, bool starting_position_) {
@@ -265,7 +266,7 @@ public:
 		set_moves();
 
 		owned_by_first_player = first_player;
-		name = "Knight";
+		name = Knight;
 	}
 	void set_moves();
 	std::string return_symbol() {
@@ -286,7 +287,7 @@ public:
 		set_moves();
 
 		owned_by_first_player = first_player;
-		name = "Bowman";
+		name = Bowman;
 	}
 
 	bowman(bool first_player, bool starting_position_) {
@@ -294,7 +295,7 @@ public:
 		set_moves();
 
 		owned_by_first_player = first_player;
-		name = "Bowman";
+		name = Bowman;
 	}
 
 	void set_moves();
@@ -318,7 +319,7 @@ public:
 		set_moves();
 
 		owned_by_first_player = first_player;
-		name = "Dragoon";
+		name = Dragoon;
 	}
 
 	dragoon(bool first_player, bool starting_position_) {
@@ -326,7 +327,7 @@ public:
 		set_moves();
 
 		owned_by_first_player = first_player;
-		name = "Dragoon";
+		name = Dragoon;
 	}
 
 	void set_moves();
@@ -349,7 +350,7 @@ public:
 		set_moves();
 
 		owned_by_first_player = first_player;
-		name = "Footman";
+		name = Footman;
 	}
 
 	footman(bool first_player, bool starting_position_) {
@@ -357,7 +358,7 @@ public:
 		set_moves();
 
 		owned_by_first_player = first_player;
-		name = "Footman";
+		name = Footman;
 	}
 
 	void set_moves();
@@ -381,7 +382,7 @@ public:
 		set_moves();
 
 		owned_by_first_player = first_player;
-		name = "Assassin";
+		name = Assassin;
 	}
 
 	assassin(bool first_player, bool starting_position_) {
@@ -389,7 +390,7 @@ public:
 		set_moves();
 
 		owned_by_first_player = first_player;
-		name = "Assassin";
+		name = Assassin;
 	}
 
 	void set_moves();
@@ -413,7 +414,7 @@ public:
 		set_moves();
 
 		owned_by_first_player = first_player;
-		name = "Priest";
+		name = Priest;
 	}
 
 	priest(bool first_player, bool starting_position_) {
@@ -421,7 +422,7 @@ public:
 		set_moves();
 
 		owned_by_first_player = first_player;
-		name = "Priest";
+		name = Priest;
 	}
 
 	void set_moves();
@@ -444,7 +445,7 @@ public:
 		set_moves();
 
 		owned_by_first_player = first_player;
-		name = "Wizard";
+		name = Wizard;
 	}
 
 	wizard(bool first_player, bool starting_position_) {
@@ -452,7 +453,7 @@ public:
 		set_moves();
 
 		owned_by_first_player = first_player;
-		name = "Wizard";
+		name = Wizard;
 	}
 
 	void set_moves();
@@ -477,7 +478,7 @@ public:
 		set_moves();
 
 		owned_by_first_player = first_player;
-		name = "Marshall";
+		name = Marshall;
 	}
 
 	marshall(bool first_player, bool starting_position_) {
@@ -485,7 +486,7 @@ public:
 		set_moves();
 
 		owned_by_first_player = first_player;
-		name = "Marshall";
+		name = Marshall;
 	}
 
 	void set_moves();
@@ -509,7 +510,7 @@ public:
 		set_moves();
 
 		owned_by_first_player = first_player;
-		name = "Champion";
+		name = Champion;
 	}
 
 	champion(bool first_player, bool starting_position_) {
@@ -517,7 +518,7 @@ public:
 		set_moves();
 
 		owned_by_first_player = first_player;
-		name = "Champion";
+		name = Champion;
 	}
 
 	void set_moves();
@@ -541,7 +542,7 @@ public:
 
 		owned_by_first_player = first_player;
 		
-		name = "General";
+		name = General;
 	}
 
 	general(bool first_player, bool starting_position_) {
@@ -549,7 +550,7 @@ public:
 		set_moves();
 
 		owned_by_first_player = first_player;
-		name = "General";
+		name = General;
 	}
 
 	void set_moves();
@@ -573,15 +574,15 @@ public:
 
 		owned_by_first_player = first_player;
 		position_on_move_board = coordinates(2, 3);
-		name = "Longbowman";
+		name = Longbowman;
 	}
 
 	longbowman(bool first_player, bool starting_position_) {
 		starting_position = starting_position_;
 		set_moves();
-
+		position_on_move_board = coordinates(2, 3);
 		owned_by_first_player = first_player;
-		name = "Longbowman";
+		name = Longbowman;
 	}
 
 	void set_moves();
