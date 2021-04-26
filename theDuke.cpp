@@ -4,8 +4,9 @@
 #include <iostream>
 #include "figures.h"
 #include "game.h"
+#include "Logger.h"
 
-void print_all_possible_moves(std::vector<possible_move> possible_moves) {
+void print_all_possible_moves(std::vector<move_t> possible_moves) {
 	for (auto&& item : possible_moves) {
 		switch (item.op) {
 		case add_it:
@@ -33,7 +34,7 @@ void test_1() {
 	gameLogic.add_new_figure(coordinates(2, 1), Pikeman,false);
 	gameLogic.first_player_plays = true;
 	gameLogic.print_board();
-	std::vector<possible_move> possible_moves = std::vector<possible_move>();
+	std::vector<move_t> possible_moves = std::vector<move_t>();
 	gameLogic.collect_all_possible_moves(possible_moves);
 	print_all_possible_moves(possible_moves);
 }
@@ -51,7 +52,7 @@ void test_2() {
 	gameLogic.board[3][3]->starting_position = false;
 	gameLogic.print_board();
 
-	std::vector<possible_move> possible_moves = std::vector<possible_move>();
+	std::vector<move_t> possible_moves = std::vector<move_t>();
 	gameLogic.collect_all_possible_moves(possible_moves);
 	print_all_possible_moves(possible_moves);
 }
@@ -73,7 +74,7 @@ void test_3() {
 	gameLogic.board[3][2]->starting_position = false;
 	gameLogic.print_board();
 
-	std::vector<possible_move> possible_moves = std::vector<possible_move>();
+	std::vector<move_t> possible_moves = std::vector<move_t>();
 	gameLogic.collect_all_possible_moves(possible_moves);
 	print_all_possible_moves(possible_moves);
 
@@ -102,11 +103,26 @@ void test_4() {
 	gameLogic.print_board();
 	gameLogic.print_packs();
 
-	std::vector<possible_move> possible_moves = std::vector<possible_move>();
+	std::vector<move_t> possible_moves = std::vector<move_t>();
 	gameLogic.collect_all_possible_moves(possible_moves);
 	print_all_possible_moves(possible_moves);
 }
 
+/* testing collect all possible moves, correct implementation of mirroring*/
+void test_5() {
+	precomputed moves = precomputed();
+	game gameLogic = game(&moves.sheet_odd, &moves.sheet_even);
+	gameLogic.first_player_plays = false;
+	gameLogic.add_new_figure(coordinates(0, 0), Duke, false);
+	gameLogic.add_new_figure(coordinates(1, 0), Pikeman, true);
+	gameLogic.add_new_figure(coordinates(0, 1), Assassin, true);
+	gameLogic.board[0][0]->starting_position = !gameLogic.board[0][0]->starting_position;
+	gameLogic.print_board();
+	gameLogic.print_packs(); 
+	std::vector<move_t> possible_moves = std::vector<move_t>();
+	gameLogic.collect_all_possible_moves(possible_moves);
+	print_all_possible_moves(possible_moves);
+}
 int main()
 {
 	srand(time(NULL));
@@ -114,6 +130,7 @@ int main()
 	//test_2();
 	//test_3();
 	//test_4();
+	//test_5();
 	precomputed moves = precomputed();
 	game gameLogic = game(&moves.sheet_odd,&moves.sheet_even);
 	gameLogic.play();

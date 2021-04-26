@@ -7,21 +7,23 @@
 #include <map>
 #include <unordered_set>
 #include <unordered_map>
+//#include "Logger.h"
+
 
 #define DEPTH 4
 #define PART 4
 
 class player;
-
+enum state_of_game {running,first_player_won,second_player_won,draw};
 enum operation { add_it, move_it, command_it };
 
-class possible_move {
+class move_t {
 public:
-	possible_move() {
+	move_t() {
 		coords = std::vector<coordinates>();
 		op = add_it;
 	}
-	possible_move(std::vector<coordinates> coords_, operation operation_) {
+	move_t(std::vector<coordinates> coords_, operation operation_) {
 		coords = coords_;
 		op = operation_;
 	}
@@ -32,24 +34,24 @@ public:
 
 class evaluation_depth_and_move {
 public:
-	evaluation_depth_and_move(double eval, possible_move move_, int depth_) {
+	evaluation_depth_and_move(double eval, move_t move_, int depth_) {
 		evaluation = eval;
 		move = move_;
 		depth = depth_;
 	}
 	double evaluation;
-	possible_move move;
+	move_t move;
 	int depth;
 };
 
 class evaluation_and_move {
 public:
-	evaluation_and_move(double eval, possible_move move_) {
+	evaluation_and_move(double eval, move_t move_) {
 		evaluation = eval;
 		move = move_;
 	}
 	double evaluation;
-	possible_move move;
+	move_t move;
 };
 
 typedef std::unordered_map<std::string, evaluation_depth_and_move> considered_states_t;
@@ -70,7 +72,7 @@ public:
 		}
 		first_player = player(true, true);
 		second_player = player(false, true);
-		gameover = false; //@todo game_states enum?
+		game_state = running;
 		sheet_even = _sheet_even;
 		sheet_odd = _sheet_odd;
 	}
@@ -101,16 +103,18 @@ public:
 
 	void print_board();
 	void print_packs();
+	void print_state();
 
 	types_of_moves move_troop(coordinates from, coordinates to);
 
 	void play();
-	void collect_all_possible_moves(std::vector<possible_move>& moves);
+	void collect_all_possible_moves(std::vector<move_t>& moves);
 
 	std::unique_ptr<figure> board[6][6];
 	void prepare_possible_moves(all_troops_sheet_t& sheet_odd, all_troops_sheet_t& sheet_even);
 private:
-	void undo();
+	void undo_add(coordinates to, troop_name name);
+	void undo(move_t type, types_of_moves move, std::unique_ptr<figure> figure_on_board);
 	evaluation_and_move minimax(int depth, bool maximize, double alpha, double beta);
 	void place_starting_troops();
 	void user_add_footman();
@@ -128,16 +132,16 @@ private:
 
 	void computer_play(considered_states_t& states);
 	void collect_addition(int x, int y, std::vector<coordinates>& squares);
-	void collect_commands(int x, int y, std::vector<possible_move>& possible_moves);
+	void collect_commands(int x, int y, std::vector<move_t>& possible_moves);
 
 	double evaluate_state(bool maximize);
 	//double evaluate_all_possible_moves(int depth, considered_states_t& states);
-	evaluation_and_move evaluate_move(possible_move move, int depth, bool maximize, double alpha, double beta);
+	double evaluate_move(move_t move, int depth, bool maximize, double alpha, double beta);
 	std::string create_hash();
 	void append_active_to_hash(bool first, std::string& hash);
 	void append_passive_to_hash(bool first, std::string& hash);
 
-	void play_specific_move(possible_move move);
+	void play_specific_move(move_t move);
 	bool command_troop(coordinates base, coordinates from, coordinates to);
 	types_of_moves get_move(coordinates from, coordinates to,bool shoot_anywhere);
 	bool remove_figure(int x, int y);
@@ -157,7 +161,7 @@ private:
 	
 	player first_player;
 	player second_player;
-	bool gameover;
+	state_of_game game_state;
 	all_troops_sheet_t* sheet_odd;
 	all_troops_sheet_t* sheet_even;
 	//std::string previous_hash;

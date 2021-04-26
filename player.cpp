@@ -15,8 +15,9 @@ troop_name player::pick_random_backup_figure() {
 	}
 
 	size_t index = rand() % size;
-	troop_name new_unit = packs.backup[index];
-
+	std::vector<troop_name>::iterator it = packs.backup.begin();
+	std::advance(it, index);
+	troop_name new_unit = *it;
 	return new_unit;
 }
 
@@ -134,9 +135,9 @@ void player::change_coordinates(int fx, int fy, int tx, int ty) {
 	for (auto& figure : packs.active) {
 		if (figure.x == fx && figure.y == fy) {
 			figure.x = tx;
-			figure.y = ty;
+			figure.y = ty; //@todo: remove and add again?
 			break;
-		}	
+		}
 	}
 }
 

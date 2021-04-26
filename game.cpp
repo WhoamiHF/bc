@@ -431,7 +431,12 @@ bool game::remove_figure(int x, int y) {
 		return false;
 	}
 	if (board[x][y]->name == Duke) {
-		gameover = true;
+		if (first_player_plays) {
+			game_state = first_player_won;
+		}
+		else {
+			game_state = second_player_won;
+		}
 	}
 	if (board[x][y]->owned_by_first_player) {
 		first_player.kill_troop(x, y);
@@ -588,7 +593,7 @@ double game::evaluate_state(bool maximize) {
 		value -= 1;
 	}
 
-	std::vector<possible_move> possible_moves;
+	std::vector<move_t> possible_moves;
 	collect_all_possible_moves(possible_moves);
 	//value += possible_moves.size() / 10;
 	if ((!maximize && first_player_plays) || (maximize && !first_player_plays)) {
@@ -598,18 +603,28 @@ double game::evaluate_state(bool maximize) {
 }
 
 evaluation_and_move game::minimax(int depth, bool maximize, double alpha, double beta) {
-	if (depth == 0 || gameover) {
-		return evaluation_and_move(evaluate_state(maximize), possible_move(std::vector<coordinates>(), add_it));
+	if (depth == 0 || game_state != running) {
+		if (depth == DEPTH) {
+			std::cout << "break"; //@todo remove
+		}
+		return evaluation_and_move(evaluate_state(maximize), move_t(std::vector<coordinates>(), add_it));
 	}
 
-	std::vector<possible_move> possible_moves;
+	std::vector<move_t> possible_moves;
 	collect_all_possible_moves(possible_moves);
-	possible_move best_move;
+	if (possible_moves.size() == 0) {
+		game_state = draw;
+		return evaluation_and_move(0, move_t(std::vector<coordinates>(), add_it));
+	}
 
+	move_t best_move;
 	if (maximize) {
 		double maximal_evaluation = -1000;
 		for (auto&& move : possible_moves) {
-			double evaluation = evaluate_move(move, depth - 1, true, alpha, beta).evaluation;
+			if (move.op == add_it && move.coords.empty()) {
+				std::cout << "wutL"; //@todo: remove
+			}
+			double evaluation = evaluate_move(move, depth - 1, true, alpha, beta);
 			if (evaluation > maximal_evaluation) {
 				maximal_evaluation = evaluation;
 				best_move = move;
@@ -626,7 +641,7 @@ evaluation_and_move game::minimax(int depth, bool maximize, double alpha, double
 	else {
 		double minimal_evaluation = 1000;
 		for (auto&& move : possible_moves) {
-			double evaluation = evaluate_move(move, depth - 1, false, alpha, beta).evaluation;
+			double evaluation = evaluate_move(move, depth - 1, false, alpha, beta);
 			if (evaluation < minimal_evaluation) {
 				minimal_evaluation = evaluation;
 				best_move = move;
@@ -642,9 +657,92 @@ evaluation_and_move game::minimax(int depth, bool maximize, double alpha, double
 	}
 }
 
+void game::undo(move_t move, types_of_moves type, std::unique_ptr<figure> figure_on_board) {
+	game_state = running;
+	first_player_plays = !first_player_plays;
+	coordinates base = coordinates(0, 0);
+	coordinates from = coordinates(0, 0);
+	coordinates to = coordinates(0, 0);
+
+	if (move.op == move_it) {
+		from = move.coords[0];
+		to = move.coords[1];
+		if (type != shoot) {
+			board[from.x][from.y] = board[to.x][to.y]->clone();
+		}
+		board[from.x][from.y]->starting_position = !board[from.x][from.y]->starting_position;
+	}
+
+	if (move.op == command_it) {
+		base = move.coords[0];
+		from = move.coords[1];
+		to = move.coords[2];
+		board[from.x][from.y] = board[to.x][to.y]->clone();
+		board[base.x][base.y]->starting_position = !board[base.x][base.y]->starting_position;
+	}
 
 
-evaluation_and_move game::evaluate_move(possible_move move, int depth, bool maximize, double alpha, double beta) {
+	//change coordinates back
+	if (move.op == move_it || move.op == command_it) {
+		if (figure_on_board == NULL) {
+			board[to.x][to.y] = NULL;
+		}
+		else {
+			board[to.x][to.y] = figure_on_board->clone(); //@todo : move?
+
+			if (first_player_plays) {
+				second_player.packs.active.push_back(troop(to.x, to.y, figure_on_board->name));
+			}
+			else {
+				first_player.packs.active.push_back(troop(to.x, to.y, figure_on_board->name));
+			}
+		}
+
+		if (first_player_plays) {
+			first_player.change_coordinates(to.x, to.y, from.x, from.y);
+		}
+		else {
+			second_player.change_coordinates(to.x, to.y, from.x, from.y);
+		}
+	}
+}
+
+void game::undo_add(coordinates to, troop_name name) {
+	game_state = running;
+	first_player_plays = !first_player_plays;
+	board[to.x][to.y] = NULL;
+
+
+	if (first_player_plays) {
+		first_player.packs.backup.push_back(name);
+
+		size_t index = 0;
+		for (auto& item : first_player.packs.active) {
+			if (item.name == name && item.x == to.x && item.y == to.y) {
+				break;
+			}
+			index++;
+		}
+		std::vector<troop>::iterator it = first_player.packs.active.begin();
+		std::advance(it, index);
+		first_player.packs.active.erase(it); //@todo: smarter
+	}
+	else {
+		size_t index = 0;
+		for (auto& item : second_player.packs.active) {
+			if (item.name == name && item.x == to.x && item.y == to.y) {
+				break;
+			}
+			index++;
+		}
+		second_player.packs.backup.push_back(name);
+		std::vector<troop>::iterator it = second_player.packs.active.begin();
+		std::advance(it, index);
+		second_player.packs.active.erase(it); //@todo: smarter
+	}
+}
+
+double game::evaluate_move(move_t move, int depth, bool maximize, double alpha, double beta) {
 	switch (move.op) {
 	case move_it:
 	{
@@ -656,45 +754,14 @@ evaluation_and_move game::evaluate_move(possible_move move, int depth, bool maxi
 			figure_on_board = board[to.x][to.y]->clone();
 		}
 
-		types_of_moves move = move_troop(from, to);
-		if (move == nothing) {
+		types_of_moves type = move_troop(from, to);
+		if (type == nothing) {
 			move_troop(from, to);
 		}
 		first_player_plays = !first_player_plays;
-		auto return_value = minimax(depth, !maximize, alpha, beta);
+		auto return_value = minimax(depth, !maximize, alpha, beta).evaluation;
+		undo(move, type, std::move(figure_on_board));
 
-
-		//undo
-		gameover = false;
-		first_player_plays = !first_player_plays;
-		if (move != shoot) {
-			board[from.x][from.y] = board[to.x][to.y]->clone();
-		}
-		board[from.x][from.y]->starting_position = !board[from.x][from.y]->starting_position;
-
-		if (figure_on_board == NULL) {
-			board[to.x][to.y] = NULL;
-		}
-		else{
-			board[to.x][to.y] = figure_on_board->clone();
-
-			if (first_player_plays) {
-				second_player.packs.active.push_back(troop(to.x, to.y, figure_on_board->name));
-			}
-			else {
-				first_player.packs.active.push_back(troop(to.x, to.y, figure_on_board->name));
-			}
-		}
-
-			//return figures on board
-		if (first_player_plays) {
-			first_player.change_coordinates(to.x, to.y, from.x, from.y);
-		}
-		else {
-			second_player.change_coordinates(to.x, to.y, from.x, from.y);
-		}
-			//maybe return enemy troop to the collection on correct spot - not necessary because no hash?
-			//change coords of friendly troop
 		return return_value;
 		break;
 	}
@@ -711,36 +778,11 @@ evaluation_and_move game::evaluate_move(possible_move move, int depth, bool maxi
 
 		command_troop(base, from, to);
 		first_player_plays = !first_player_plays;
-		auto return_value = minimax(depth, !maximize, alpha, beta);
+		auto return_value = minimax(depth, !maximize, alpha, beta).evaluation;
 
 		//undo
-		gameover = false;
-		first_player_plays = !first_player_plays;
-		board[from.x][from.y] = board[to.x][to.y]->clone();
+		undo(move, walk, std::move(figure_on_board));
 
-		if (figure_on_board == NULL) {
-			board[to.x][to.y] = NULL;
-		}
-		else {
-			board[to.x][to.y] = figure_on_board->clone();
-
-			if (first_player_plays) {
-				second_player.packs.active.push_back(troop(to.x, to.y, figure_on_board->name));
-			}
-			else {
-				first_player.packs.active.push_back(troop(to.x, to.y, figure_on_board->name));
-			}
-		}
-
-		//return figures on board
-		if (first_player_plays) {
-			first_player.change_coordinates(to.x, to.y, from.x, from.y);
-		}
-		else {
-			second_player.change_coordinates(to.x, to.y, from.x, from.y);
-		}
-
-		board[base.x][base.y]->starting_position = !board[base.x][base.y]->starting_position;
 		return return_value;
 		break;
 
@@ -767,14 +809,16 @@ evaluation_and_move game::evaluate_move(possible_move move, int depth, bool maxi
 
 
 		for (auto& index : indices) {
-			troop_name name = collection->at(index);
+			std::vector<troop_name>::iterator it = collection->begin();
+			std::advance(it, index);
+			troop_name name = *it;
 			double best = 1000;
 			if (maximize) {
 				best = -1000;
 			}
 
 			for (auto& to : move.coords) {
-				add_new_figure(to,name, false);
+				add_new_figure(to, name, false);
 
 				first_player_plays = !first_player_plays;
 				double eval = minimax(depth, !maximize, alpha, beta).evaluation;
@@ -783,50 +827,19 @@ evaluation_and_move game::evaluate_move(possible_move move, int depth, bool maxi
 					best = eval;
 				}
 
-				//undo
-				gameover = false;
-				first_player_plays = !first_player_plays;
-				board[to.x][to.y] = NULL;
-
-
-				if (first_player_plays) {
-					first_player.packs.backup.push_back(name);
-					
-					size_t index = 0;
-					for (auto& item : first_player.packs.active) {
-						if (item.name == name && item.x == to.x && item.y == to.y) {
-							break;
-						}
-						index++;
-					}
-					first_player.packs.active.erase(first_player.packs.active.begin()+index); //@todo: smarter
-				}
-				else {
-					size_t index = 0;
-					for (auto& item : second_player.packs.active) {
-						if (item.name == name && item.x == to.x && item.y == to.y) {
-							break;
-						}
-						index++;
-					}
-					second_player.packs.backup.push_back(name);
-					second_player.packs.active.erase(second_player.packs.active.begin() + index); //@todo: smarter
-				}
-				
-
+				undo_add(to,name);
 			}
 			sum += best;
-
 		}
 
-		return evaluation_and_move(sum / collection->size(), possible_move(std::vector<coordinates>(), add_it));
+		return sum / collection->size();
 		break;
 	}
 	}
 
 }
 
-void game::play_specific_move(possible_move move) {
+void game::play_specific_move(move_t move) {
 	switch (move.op) {
 	case move_it:
 	{
@@ -837,7 +850,6 @@ void game::play_specific_move(possible_move move) {
 	}
 	case add_it:
 	{
-		coordinates to = move.coords[0]; /*@todo*/
 		troop_name name;
 		if (first_player_plays) {
 			name = first_player.pick_random_backup_figure();
@@ -845,7 +857,18 @@ void game::play_specific_move(possible_move move) {
 		else {
 			name = second_player.pick_random_backup_figure();
 		}
-		add_new_figure(to, name, false);
+
+		coordinates best_coordinates = coordinates(-1, 0);
+		double best_score = -1000;
+
+		for (auto&& to : move.coords) {
+			double score = evaluate_move(move_t(std::vector<coordinates>{to}, add_it),DEPTH-1,true,-1000,1000 );
+			if (score >= best_score || best_coordinates.x == -1) {
+				best_coordinates = to;
+				best_score = score;
+			}
+		}
+		add_new_figure(best_coordinates, name, false);
 		break;
 	}
 	case command_it:
@@ -873,9 +896,30 @@ void game::computer_play(considered_states_t& states) {
 	}
 	//else search for best move and add hash to parameter
 	else {
-		auto best_branch = minimax(DEPTH, true, -1000, 1000);
+		auto best_branch = minimax(DEPTH, true, -1000, 1000); //@todo: no possible move (empty)
 		//states.emplace(std::pair<const std::string, evaluation_depth_and_move>(hash, evaluation_depth_and_move(best_score, best_move, DEPTH)));
-		play_specific_move(best_branch.move);
+		if (best_branch.move.op == add_it && best_branch.move.coords.empty()) {
+			best_branch = minimax(DEPTH, true, -1000, 1000);
+		}
+		if (game_state == running) {
+			play_specific_move(best_branch.move);
+		}
+	}
+}
+
+void game::print_state() {
+	switch (game_state) {
+	case first_player_won:
+		std::cout << "First player won!" << std::endl;
+		break;
+	case second_player_won:
+		std::cout << "Second player won!" << std::endl;
+		break;
+	case draw:
+		std::cout << "It's a draw!" << std::endl;
+		break;
+	default:
+		break;
 	}
 }
 
@@ -888,7 +932,7 @@ void game::play() {
 	considered_states_t considered_states = considered_states_t();
 
 	place_starting_troops();
-	while (!gameover) {
+	while (game_state == running) {
 		rounds++;
 		print_board();
 		print_packs();
@@ -907,11 +951,10 @@ void game::play() {
 
 		print_board();
 		print_packs();
-		if (gameover) {
-			std::cout << "player one won!" << std::endl;
+		print_state();
+		if (game_state != running) {
 			break;
 		}
-
 		std::cout << rounds << ". Second player's turn" << std::endl;
 		first_player_plays = false;
 
@@ -922,10 +965,9 @@ void game::play() {
 			while (!user_play()) {}
 		}
 
-		if (gameover) {
+		if (game_state != running) {
 			print_board();
-			std::cout << "player two won!" << std::endl;
-			break;
+			print_state();
 		}
 		//second_player.sort_active_pack();
 	}
@@ -939,6 +981,7 @@ void game::play() {
 /* called from function play(). Deals with initial placing of troops (Duke and two footman for each player)
 */
 void game::place_starting_troops() {
+	srand(time(NULL));
 	add_duke();
 	add_duke();
 	add_footman();
@@ -981,7 +1024,6 @@ void game::add_footman() {
 void game::computer_add_duke() {
 	std::vector<coordinates> possibilites_first_player{ coordinates(2,0),coordinates(3,0) };
 	std::vector<coordinates> possibilites_second_player{ coordinates(2,5),coordinates(3,5) };
-	srand(time(NULL));
 	int random_index = rand() % possibilites_first_player.size();;
 	if (first_player_plays) {
 		add_new_figure(possibilites_first_player[random_index], Duke, false);
@@ -1064,7 +1106,7 @@ void game::user_add_duke() {
 * @param y - y coordinate of considered square
 * @param[output] possible_moves - reference on containeer which stores all possible moves
 */
-void game::collect_commands(int x, int y, std::vector<possible_move>& possible_moves) {
+void game::collect_commands(int x, int y, std::vector<move_t>& possible_moves) {
 	auto command_squares = &board[x][y]->command_squares_other;
 	if (board[x][y]->starting_position) {
 		command_squares = &board[x][y]->command_squares_starting;
@@ -1099,7 +1141,7 @@ void game::collect_commands(int x, int y, std::vector<possible_move>& possible_m
 		for (auto& start : start_command) {
 			for (auto& end : end_command) {
 				std::vector<coordinates> coords{ coordinates(x,y),start,end };
-				possible_moves.push_back(possible_move(coords, command_it));
+				possible_moves.push_back(move_t(coords, command_it));
 				//std::cout << "[" << x << "," << y << "]" << "command" << "[" << start.x << "," << start.y << "]" << "[" << end.x << "," << end.y << "]" << std::endl;
 			}
 		}
@@ -1121,47 +1163,68 @@ void game::collect_addition(int x, int y, std::vector<coordinates>& squares) {
 /* collects all possible commands, additions and moves for current player
 * @param[output] possible_moves - reference for container which stores possible moves
 */
-void game::collect_all_possible_moves(std::vector<possible_move>& possible_moves) {
+void game::collect_all_possible_moves(std::vector<move_t>& possible_moves) {
 	auto collection = &second_player.packs.active;
 	if (first_player_plays) {
 		collection = &first_player.packs.active;
 	}
 
 	//commands and moves
-	for (auto& item : *collection) {
-		//@todo: previous same?
-		if (item.name == Duke) {
+	for (auto& real_from : *collection) {
+		//@todo: previous same? - no it's active it wont work
+		if (real_from.name == Duke) {
 			std::vector<coordinates> squares_for_additition = std::vector<coordinates>();
-			collect_addition(item.x, item.y + 1, squares_for_additition);
-			collect_addition(item.x, item.y - 1, squares_for_additition);
-			collect_addition(item.x + 1, item.y, squares_for_additition);
-			collect_addition(item.x - 1, item.y, squares_for_additition);
+			collect_addition(real_from.x, real_from.y + 1, squares_for_additition);
+			collect_addition(real_from.x, real_from.y - 1, squares_for_additition);
+			collect_addition(real_from.x + 1, real_from.y, squares_for_additition);
+			collect_addition(real_from.x - 1, real_from.y, squares_for_additition);
 			if (!squares_for_additition.empty()) {
-				possible_moves.push_back(possible_move(squares_for_additition, add_it));
+				possible_moves.push_back(move_t(squares_for_additition, add_it));
 			}
 		}
 
-		collect_commands(item.x, item.y, possible_moves);
+		collect_commands(real_from.x, real_from.y, possible_moves);
 
-		auto precomputed_moves = sheet_even->find(item.name);
-		if (board[item.x][item.y]->starting_position) {
-			precomputed_moves = sheet_odd->find(item.name);
+		//@todo: computes both
+		all_troops_sheet_t::iterator precomputed_moves;
+		if (board[real_from.x][real_from.y]->starting_position) {
+			precomputed_moves = sheet_odd->find(real_from.name);
 			if (precomputed_moves == sheet_odd->end()) {
 				exit(404);
 			}
 		}
-		else if (precomputed_moves == sheet_even->end()) {
-			exit(404);
+		else {
+			precomputed_moves = sheet_even->find(real_from.name);
+			if (precomputed_moves == sheet_even->end()) {
+				exit(404);
+			}
 		}
 
-		for (coordinates& to : precomputed_moves->second[item.x][item.y]) {
-			auto move = get_move(coordinates(item.x, item.y), to, false);
+		int mirror_from_x = real_from.x;
+		int mirror_from_y = real_from.y;
+
+		//mirror from
+		if (!first_player_plays) {
+			mirror_from_x = 5 - mirror_from_x;
+			mirror_from_y = 5 - mirror_from_y;
+		}
+
+		for (coordinates& mirror_to : precomputed_moves->second[mirror_from_x][mirror_from_y]) {
+			coordinates real_to = mirror_to;
+			if (!first_player_plays) {
+				int mirror_difference_x = mirror_to.x - mirror_from_x;
+				int mirror_difference_y = mirror_to.y - mirror_from_y;
+				real_to.x = real_from.x - mirror_difference_x;
+				real_to.y = real_from.y - mirror_difference_y;
+			}
+
+			auto move = get_move(coordinates(real_from.x, real_from.y), real_to, false);
 			if (move == nothing) {
 				continue;
 			}
 			else {
-				std::vector<coordinates> coords{ coordinates(item.x,item.y),to };
-				possible_moves.push_back(possible_move(coords, move_it));
+				std::vector<coordinates> coords{ coordinates(real_from.x,real_from.y),real_to };
+				possible_moves.push_back(move_t(coords, move_it));
 				//std::cout << "[" << item.x << "," << item.y << "]" << move << "[" << x_to << "," << y_to << "]" << std::endl;
 			}
 		}
@@ -1271,55 +1334,5 @@ void game::prepare_possible_moves(all_troops_sheet_t& sheet_odd, all_troops_shee
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 	std::cout << duration.count() << std::endl;
 	std::cout << total << std::endl;
-	gameover = false;
+	game_state = running;
 }
-
-/* evaluates all possible moves with lookahead of specified depth and returns best score
-
-double game::evaluate_all_possible_moves(int depth, considered_states_t& states) {
-	if (gameover) {
-		return -100;
-	}
-	std::string hash = create_hash();
-	auto it = states.find(hash);
-	//if is in states and depth is correct then we know the svaluation
-	if (it != states.end() && it->second.depth >= depth) {
-		if ((depth - it->second.depth) % 2 == 1) {
-			return -it->second.evaluation;
-		}
-		else {
-			return it->second.evaluation;
-		}
-	}
-
-	if (depth == 0) {
-		double best_score = -evaluate_state();
-		states.emplace(std::pair<const std::string, evaluation_depth_and_move>(hash, evaluation_depth_and_move(best_score, possible_move(std::vector<coordinates>{coordinates(1, 1)}, add_it), 0)));
-		return best_score;
-	}
-
-	std::vector<possible_move> possible_moves;
-	collect_all_possible_moves(possible_moves);
-
-	if (possible_moves.empty()) {
-		return 0;
-	}
-
-	possible_move best_move;
-	bool first = true;
-	double best_score = 0;
-	for (auto& item : possible_moves) {
-		double score = evaluate_move(item, depth, states);
-		if (first) {
-			first = false;
-			best_score = score;
-			best_move = item;
-		}
-		else if (score > best_score) {
-			best_score = score;
-			best_move = item;
-		}
-	}
-	states.emplace(std::pair<const std::string, evaluation_depth_and_move>(hash, evaluation_depth_and_move(best_score, best_move, depth)));
-	return best_score;
-}*/

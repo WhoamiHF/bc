@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <set>
 #include <string>
 
 enum troop_name { Assassin, Bowman, Dragoon, Duke, Footman, General, Champion, Knight, Longbowman, Marshall, Nothing, Pikeman, Priest, Ranger, Seer, Wizard  };
@@ -10,6 +11,13 @@ public:
 		x = x_;
 		y = y_;
 		name = name_;
+	}
+	bool operator<( const troop& right) {
+		return this->x < right.x || (this->x == right.x && this->y < right.y) || (this->x == right.x && this->y == right.y && this->name < right.name);
+	}
+
+	bool operator==(const troop& right) {
+		return this->x == right.x  && this->y == right.x && this->name == right.name;
 	}
 
 	int x;
@@ -30,7 +38,6 @@ public:
 	bool deploy_troop(troop_name figure, int x, int y);
 	std::vector<troop> active;
 	std::vector<troop_name> backup;
-private:
 	
 };
 
