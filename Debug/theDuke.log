@@ -1,0 +1,14 @@
+﻿  game.cpp
+C:\Users\Bob\source\repos\theDuke\theDuke\game.cpp(797,13): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\Bob\source\repos\theDuke\theDuke\game.cpp(799,21): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Bob\source\repos\theDuke\theDuke\game.cpp(984,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\Bob\source\repos\theDuke\theDuke\game.cpp(1048,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  Logger.cpp
+C:\Users\Bob\source\repos\theDuke\theDuke\Logger.h(15,10): warning C4244: 'initializing': conversion from 'time_t' to 'int', possible loss of data
+  theDuke.cpp
+C:\Users\Bob\source\repos\theDuke\theDuke\Logger.h(15,10): warning C4244: 'initializing': conversion from 'time_t' to 'int', possible loss of data
+C:\Users\Bob\source\repos\theDuke\theDuke\theDuke.cpp(128,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  Generating Code...
+C:\Users\Bob\source\repos\theDuke\theDuke\game.cpp(266): warning C4715: 'game::get_move': not all control paths return a value
+C:\Users\Bob\source\repos\theDuke\theDuke\game.cpp(840): warning C4715: 'game::evaluate_move': not all control paths return a value
+  theDuke.vcxproj -> C:\Users\Bob\source\repos\theDuke\Debug\theDuke.exe
